@@ -2,7 +2,7 @@
 
 Personal technical blog built with [Jekyll](https://jekyllrb.com) and the [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) theme, hosted on [GitHub Pages](https://pages.github.com).
 
-**Live site:** https://chuan-zhang.github.io
+**Live site:** https://chuan2019.github.io
 
 ---
 
@@ -60,7 +60,7 @@ To use a custom commit message:
 ./scripts/deploy.sh "add post: your post title here"
 ```
 
-The live site updates at https://chuan-zhang.github.io within about a minute of pushing.
+The live site updates at https://chuan2019.github.io within about a minute of pushing.
 
 ---
 
