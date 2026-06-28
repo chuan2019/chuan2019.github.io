@@ -26,7 +26,7 @@ description: >- # used by seo meta and the atom feed
 url: "https://chuan2019.github.io"
 
 github:
-  username: chuan-zhang
+  username: chuan2019
 
 twitter:
   username: # add your Twitter username if you have one
@@ -36,7 +36,7 @@ social:
   email: chuan.zhang2015@gmail.com
   fediverse_handle:
   links:
-    - https://github.com/chuan-zhang
+    - https://github.com/chuan2019
     # Uncomment below to add more social links
     # - https://www.linkedin.com/in/username
 

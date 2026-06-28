@@ -27,4 +27,4 @@ git commit -m "$COMMIT_MSG"
 echo "==> Pushing to GitHub..."
 git push
 
-echo "==> Done. Your site will be live at https://chuan-zhang.github.io in ~1 minute."
+echo "==> Done. Your site will be live at https://chuan2019.github.io in ~1 minute."
