@@ -5,18 +5,18 @@ order: 4
 
 # About Me
 
-Hi, I'm **Chuan Zhang** — a software engineer and technical writer with a passion for building robust systems and sharing what I learn along the way.
+Hi, I'm **Chuan Zhang** — an AI and software engineer with a Ph.D. in Applied Mathematics and over a decade of industry experience building machine learning systems, data pipelines, and production software.
 
-I write about topics at the intersection of software engineering, machine learning, and systems design. My articles aim to be practical and precise — the kind of writing I wish I had found when I was learning.
+My work spans the full arc from research to deployment: I've built large-scale ML models, designed distributed data systems, applied deep learning to NLP and ETL problems, and more recently worked extensively with LLMs, retrieval-augmented generation, and knowledge graphs. I currently work at AXA XL in New York.
 
-Previously published on [Medium](https://chuan-zhang.medium.com), I've moved to this personal blog to have a cleaner, faster, and fully owned home for my writing.
+I write to document the real engineering involved in this work — the architecture decisions, implementation tradeoffs, and practical patterns that aren't always obvious from papers or documentation alone. Previously published on [Medium](https://chuan-zhang.medium.com), this blog is my primary home for long-form technical writing.
 
 ## What I Write About
 
-- **Software Engineering** — architecture, design patterns, and best practices
-- **Machine Learning & AI** — algorithms, implementation, and real-world applications
-- **Systems Design** — distributed systems, databases, and scalability
-- **Tools & Workflows** — the developer tooling and practices that make me more effective
+- **LLMs & RAG** — retrieval-augmented generation, knowledge graphs, reasoning pipelines, and grounding LLMs in structured data
+- **Python Engineering** — async patterns, protocol types, runtime validation, and the language features that matter at production scale
+- **Observability & Systems** — OpenTelemetry, Datadog, DIY stacks, and building platforms you can actually trust to tell you what's happening
+- **ML & Data** — applied machine learning, deep learning, NLP, and the messy reality of building models that work in production
 
 ## Get in Touch
 
