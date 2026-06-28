@@ -9,7 +9,7 @@ Hi, I'm **Chuan Zhang** — a software engineer and technical writer with a pass
 
 I write about topics at the intersection of software engineering, machine learning, and systems design. My articles aim to be practical and precise — the kind of writing I wish I had found when I was learning.
 
-Previously published on [Medium](https://medium.com), I've moved to this personal blog to have a cleaner, faster, and fully owned home for my writing.
+Previously published on [Medium](https://chuan-zhang.medium.com), I've moved to this personal blog to have a cleaner, faster, and fully owned home for my writing.
 
 ## What I Write About
 
@@ -20,4 +20,4 @@ Previously published on [Medium](https://medium.com), I've moved to this persona
 
 ## Get in Touch
 
-Feel free to reach out via [email](mailto:chuan.zhang2015@gmail.com) or find me on [GitHub](https://github.com/chuan-zhang).
+Feel free to reach out via [email](mailto:chuan.zhang2015@gmail.com) or find me on [GitHub](https://github.com/chuan2019).
