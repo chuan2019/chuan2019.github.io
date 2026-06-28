@@ -5,7 +5,7 @@ order: 4
 
 # About Me
 
-Hi, I'm **Chuan Zhang** — an AI and software engineer with a Ph.D. in Applied Mathematics and over a decade of industry experience building machine learning systems, data pipelines, and production software.
+Hi, I'm **Chuan Zhang** — an AI and software engineer with a Ph.D. in Applied Mathematics and over a decade of industry experience building distributed systems, data pipelines, and production software.
 
 My work spans the full arc from research to deployment: I've built large-scale ML models, designed distributed data systems, applied deep learning to NLP and ETL problems, and more recently worked extensively with LLMs, retrieval-augmented generation, and knowledge graphs. I currently work at AXA XL in New York.
 
