@@ -5,11 +5,11 @@ order: 4
 
 # About Me
 
-Hi, I'm **Chuan Zhang** — an AI and software engineer with a Ph.D. in Applied Mathematics and over a decade of industry experience building distributed systems, data pipelines, and production software.
+Hi, I'm **Chuan Zhang** — a senior AI and software engineer with a Ph.D. in Applied Mathematics. Over the past decade I've built backend systems and distributed data platforms, and more recently these mostly mean LLM-powered applications. I'm currently working at **Deluxe Media** in Burbank, CA, building micro-service platform on AWS that utilize generative AI technologies to automate various media localization related workflows, such as movie subtitle machine translation evaluations and post-editing etc.
 
-My work spans the full arc from research to deployment: I've built large-scale ML models, designed distributed data systems, applied deep learning to NLP and ETL problems, and more recently worked extensively with LLMs, retrieval-augmented generation, and knowledge graphs. I currently work at AXA XL in New York.
+Before joining Deluxe Media, I led an AI engineering team at AXA XL building an LLM-driven document intelligence platform, with early forays into knowledge-graph modeling. Earlier, I spent three and a half years at **Activision** building experimentation platforms supporting A/B testing, multi-armed bandit, dynamic segmentation, and KPI services. The platform ran at game scale — 8+ million concurrent players and 30K+ RPS. And before the game industry, I optimized SQL query engines in C/C++ at Teradata and built distributed pattern databases at ASML. The throughline across all of it: distributed systems and data infrastructure, and, more recently, working with agentic AI tooling — MCP, LangChain, LangGraph, etc — to get LLMs to hold up in production.
 
-I write to document the real engineering involved in this work — the architecture decisions, implementation tradeoffs, and practical patterns that aren't always obvious from papers or documentation alone. Previously published on [Medium](https://chuan-zhang.medium.com), this blog is my primary home for long-form technical writing.
+I write about whatever engineering problem currently has my attention — usually AI Agents, RAG systems, Python internals, observability, or applied ML — and try to capture the architecture decisions and tradeoffs that don't always make it into papers or docs. Previously published on [Medium](https://chuan-zhang.medium.com), this blog is now my primary home for long-form technical writing.
 
 ## What I Write About
 
