@@ -159,80 +159,80 @@ Peer-reviewed and archival sources are listed first; grey literature (specificat
 
 ### Academic literature
 
-1. Sigelman, B. H., Barroso, L. A., Burrows, M., et al. (2010). *Dapper, a Large-Scale Distributed Systems Tracing Infrastructure.* Google Technical Report. https://research.google/pubs/dapper-a-large-scale-distributed-systems-tracing-infrastructure/
-2. Sculley, D., Holt, G., Golovin, D., et al. (2015). *Hidden Technical Debt in Machine Learning Systems.* NeurIPS 2015. https://papers.nips.cc/paper/5656-hidden-technical-debt-in-machine-learning-systems
-3. Breck, E., Cai, S., Nielsen, E., Salib, M., Sculley, D. (2017). *The ML Test Score: A Rubric for ML Production Readiness and Technical Debt Reduction.* IEEE Big Data 2017. https://research.google/pubs/the-ml-test-score-a-rubric-for-ml-production-readiness-and-technical-debt-reduction/
-4. Breck, E., Polyzotis, N., Roy, S., Whang, S. E., Zinkevich, M. (2019). *Data Validation for Machine Learning.* MLSys 2019. https://proceedings.mlsys.org/paper_files/paper/2019/hash/928f1160e52192e3e0017fb63ab65391-Abstract.html
-5. Lu, J., Liu, A., Dong, F., Gu, F., Gama, J., Zhang, G. (2019). *Learning under Concept Drift: A Review.* IEEE TKDE 31(12). https://arxiv.org/abs/2004.05785
-6. Rabanser, S., Günnemann, S., Lipton, Z. C. (2019). *Failing Loudly: An Empirical Study of Methods for Detecting Dataset Shift.* NeurIPS 2019. https://arxiv.org/abs/1810.11953
-7. Klaise, J., Van Looveren, A., Cox, C., Vacanti, G., Coca, A. (2020). *Monitoring and explainability of models in production.* ICML 2020 Workshop. https://arxiv.org/abs/2007.06299
-8. Shankar, S., Parameswaran, A. (2022). *Towards Observability for Production Machine Learning Pipelines.* PVLDB 15(13). https://arxiv.org/abs/2108.13557
-9. Shankar, S., Garcia, R., Hellerstein, J. M., Parameswaran, A. G. (2022). *Operationalizing Machine Learning: An Interview Study.* arXiv:2209.09125. https://arxiv.org/abs/2209.09125
-10. Kreuzberger, D., Kühl, N., Hirschl, S. (2023). *Machine Learning Operations (MLOps): Overview, Definition, and Architecture.* IEEE Access 11. DOI 10.1109/ACCESS.2023.3262138
-11. Zheng, L., et al. (2023). *Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena.* NeurIPS 2023 (D&B). https://arxiv.org/abs/2306.05685
-12. Manakul, P., Liusie, A., Gales, M. J. F. (2023). *SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models.* EMNLP 2023. https://aclanthology.org/2023.emnlp-main.557/
-13. Rebedea, T., Dinu, R., Sreedhar, M., Parisien, C., Cohen, J. (2023). *NeMo Guardrails: A Toolkit for Controllable and Safe LLM Applications with Programmable Rails.* EMNLP 2023 Demos. https://arxiv.org/abs/2310.10501
-14. Huang, L., et al. (2024). *A Survey on Hallucination in Large Language Models.* ACM TOIS. https://arxiv.org/abs/2311.05232
-15. Farquhar, S., Kossen, J., Kuhn, L., Gal, Y. (2024). *Detecting hallucinations in large language models using semantic entropy.* Nature 630, 625–630. https://www.nature.com/articles/s41586-024-07421-0
-16. Kossen, J., et al. (2024). *Semantic Entropy Probes.* arXiv:2406.15927. https://arxiv.org/abs/2406.15927
-17. Dong, Y., Mu, R., Jin, G., et al. (2024). *Building Guardrails for Large Language Models.* ICML 2024 (position). https://arxiv.org/abs/2402.01822
-18. Shankar, S., et al. (2024). *Who Validates the Validators? Aligning LLM-Assisted Evaluation of LLM Outputs with Human Preferences.* UIST 2024. https://arxiv.org/abs/2404.12272
-19. Xia, X., et al. (2024). *An Empirical Study on Challenges for LLM Application Developers.* arXiv:2408.05002. https://arxiv.org/abs/2408.05002
-20. Anon. (2024). *Themes of Building LLM-based Applications for Production: A Practitioner's View.* arXiv:2411.08574. https://arxiv.org/abs/2411.08574
-21. Dong, L., Lu, Q., Zhu, L. (2024). *AgentOps: Enabling Observability of LLM Agents.* arXiv:2411.05285 (CSIRO Data61). https://arxiv.org/abs/2411.05285
-22. Moshkovich, D., Mulian, H., Zeltyn, S., et al. (2025). *Beyond Black-Box Benchmarking: Observability, Analytics, and Optimization of Agentic Systems.* arXiv:2503.06745. https://arxiv.org/abs/2503.06745
-23. Moshkovich, D., Zeltyn, S. (2025). *Taming Uncertainty via Automation: Observing, Analyzing, and Optimizing Agentic AI Systems.* arXiv:2507.11277. https://arxiv.org/abs/2507.11277
-24. Cemri, M., Pan, M. Z., Yang, S., et al. (2025). *Why Do Multi-Agent LLM Systems Fail?* arXiv:2503.13657. https://arxiv.org/abs/2503.13657
-25. Deshpande, D., Gangal, V., Mehta, H., et al. (2025). *TRAIL: Trace Reasoning and Agentic Issue Localization.* arXiv:2505.08638. https://arxiv.org/abs/2505.08638
-26. Zheng, Y., et al. (2025). *AgentSight: System-Level Observability for AI Agents Using eBPF.* arXiv:2508.02736. https://arxiv.org/abs/2508.02736
-27. Zhang, et al. (2025). *A Survey of AIOps in the Era of Large Language Models.* arXiv:2507.12472. https://arxiv.org/abs/2507.12472
-28. Sisodia, T. (2026). *AI Observability for Large Language Model Systems: A Multi-Layer Analysis.* arXiv:2604.26152 (preprint, not peer-reviewed). https://arxiv.org/abs/2604.26152
+[1] Sigelman, B. H., Barroso, L. A., Burrows, M., et al. (2010). *Dapper, a Large-Scale Distributed Systems Tracing Infrastructure.* Google Technical Report. https://research.google/pubs/dapper-a-large-scale-distributed-systems-tracing-infrastructure/
+[2] Sculley, D., Holt, G., Golovin, D., et al. (2015). *Hidden Technical Debt in Machine Learning Systems.* NeurIPS 2015. https://papers.nips.cc/paper/5656-hidden-technical-debt-in-machine-learning-systems
+[3] Breck, E., Cai, S., Nielsen, E., Salib, M., Sculley, D. (2017). *The ML Test Score: A Rubric for ML Production Readiness and Technical Debt Reduction.* IEEE Big Data 2017. https://research.google/pubs/the-ml-test-score-a-rubric-for-ml-production-readiness-and-technical-debt-reduction/
+[4] Breck, E., Polyzotis, N., Roy, S., Whang, S. E., Zinkevich, M. (2019). *Data Validation for Machine Learning.* MLSys 2019. https://proceedings.mlsys.org/paper_files/paper/2019/hash/928f1160e52192e3e0017fb63ab65391-Abstract.html
+[5] Lu, J., Liu, A., Dong, F., Gu, F., Gama, J., Zhang, G. (2019). *Learning under Concept Drift: A Review.* IEEE TKDE 31(12). https://arxiv.org/abs/2004.05785
+[6] Rabanser, S., Günnemann, S., Lipton, Z. C. (2019). *Failing Loudly: An Empirical Study of Methods for Detecting Dataset Shift.* NeurIPS 2019. https://arxiv.org/abs/1810.11953
+[7] Klaise, J., Van Looveren, A., Cox, C., Vacanti, G., Coca, A. (2020). *Monitoring and explainability of models in production.* ICML 2020 Workshop. https://arxiv.org/abs/2007.06299
+[8] Shankar, S., Parameswaran, A. (2022). *Towards Observability for Production Machine Learning Pipelines.* PVLDB 15(13). https://arxiv.org/abs/2108.13557
+[9] Shankar, S., Garcia, R., Hellerstein, J. M., Parameswaran, A. G. (2022). *Operationalizing Machine Learning: An Interview Study.* arXiv:2209.09125. https://arxiv.org/abs/2209.09125
+[10] Kreuzberger, D., Kühl, N., Hirschl, S. (2023). *Machine Learning Operations (MLOps): Overview, Definition, and Architecture.* IEEE Access 11. DOI 10.1109/ACCESS.2023.3262138
+[11] Zheng, L., et al. (2023). *Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena.* NeurIPS 2023 (D&B). https://arxiv.org/abs/2306.05685
+[12] Manakul, P., Liusie, A., Gales, M. J. F. (2023). *SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models.* EMNLP 2023. https://aclanthology.org/2023.emnlp-main.557/
+[13] Rebedea, T., Dinu, R., Sreedhar, M., Parisien, C., Cohen, J. (2023). *NeMo Guardrails: A Toolkit for Controllable and Safe LLM Applications with Programmable Rails.* EMNLP 2023 Demos. https://arxiv.org/abs/2310.10501
+[14] Huang, L., et al. (2024). *A Survey on Hallucination in Large Language Models.* ACM TOIS. https://arxiv.org/abs/2311.05232
+[15] Farquhar, S., Kossen, J., Kuhn, L., Gal, Y. (2024). *Detecting hallucinations in large language models using semantic entropy.* Nature 630, 625–630. https://www.nature.com/articles/s41586-024-07421-0
+[16] Kossen, J., et al. (2024). *Semantic Entropy Probes.* arXiv:2406.15927. https://arxiv.org/abs/2406.15927
+[17] Dong, Y., Mu, R., Jin, G., et al. (2024). *Building Guardrails for Large Language Models.* ICML 2024 (position). https://arxiv.org/abs/2402.01822
+[18] Shankar, S., et al. (2024). *Who Validates the Validators? Aligning LLM-Assisted Evaluation of LLM Outputs with Human Preferences.* UIST 2024. https://arxiv.org/abs/2404.12272
+[19] Xia, X., et al. (2024). *An Empirical Study on Challenges for LLM Application Developers.* arXiv:2408.05002. https://arxiv.org/abs/2408.05002
+[20] Anon. (2024). *Themes of Building LLM-based Applications for Production: A Practitioner's View.* arXiv:2411.08574. https://arxiv.org/abs/2411.08574
+[21] Dong, L., Lu, Q., Zhu, L. (2024). *AgentOps: Enabling Observability of LLM Agents.* arXiv:2411.05285 (CSIRO Data61). https://arxiv.org/abs/2411.05285
+[22] Moshkovich, D., Mulian, H., Zeltyn, S., et al. (2025). *Beyond Black-Box Benchmarking: Observability, Analytics, and Optimization of Agentic Systems.* arXiv:2503.06745. https://arxiv.org/abs/2503.06745
+[23] Moshkovich, D., Zeltyn, S. (2025). *Taming Uncertainty via Automation: Observing, Analyzing, and Optimizing Agentic AI Systems.* arXiv:2507.11277. https://arxiv.org/abs/2507.11277
+[24] Cemri, M., Pan, M. Z., Yang, S., et al. (2025). *Why Do Multi-Agent LLM Systems Fail?* arXiv:2503.13657. https://arxiv.org/abs/2503.13657
+[25] Deshpande, D., Gangal, V., Mehta, H., et al. (2025). *TRAIL: Trace Reasoning and Agentic Issue Localization.* arXiv:2505.08638. https://arxiv.org/abs/2505.08638
+[26] Zheng, Y., et al. (2025). *AgentSight: System-Level Observability for AI Agents Using eBPF.* arXiv:2508.02736. https://arxiv.org/abs/2508.02736
+[27] Zhang, et al. (2025). *A Survey of AIOps in the Era of Large Language Models.* arXiv:2507.12472. https://arxiv.org/abs/2507.12472
+[28] Sisodia, T. (2026). *AI Observability for Large Language Model Systems: A Multi-Layer Analysis.* arXiv:2604.26152 (preprint, not peer-reviewed). https://arxiv.org/abs/2604.26152
 
 ### Standards, specifications, and regulation
 
-29. OpenTelemetry. *Semantic Conventions for Generative AI* (spans, metrics; status: Development). https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/ ; https://github.com/open-telemetry/semantic-conventions-genai
-30. OpenTelemetry (2025). *AI Agent Observability — Evolving Standards and Best Practices.* https://opentelemetry.io/blog/2025/ai-agent-observability/
-31. OpenTelemetry (2026). *Inside the LLM Call: GenAI Observability with OpenTelemetry.* https://opentelemetry.io/blog/2026/genai-observability/
-32. OpenTelemetry. *Semantic Conventions for Model Context Protocol* (Development). https://opentelemetry.io/docs/specs/semconv/gen-ai/mcp/
-33. W3C (2020). *Trace Context.* W3C Recommendation. https://www.w3.org/TR/trace-context/
-34. Traceloop. *OpenLLMetry.* https://github.com/traceloop/openllmetry
-35. Arize AI. *OpenInference Specification.* https://github.com/Arize-ai/openinference
-36. Model Context Protocol. *OpenTelemetry trace support* (discussion #269). https://github.com/modelcontextprotocol/modelcontextprotocol/discussions/269
-37. European Union (2024). *AI Act, Regulation (EU) 2024/1689* — Art. 12 (Record-keeping), Art. 72 (Post-market monitoring). https://artificialintelligenceact.eu/article/12/
-38. NIST (2023/2024). *AI Risk Management Framework 1.0* and *Generative AI Profile (NIST AI 600-1).* https://www.nist.gov/itl/ai-risk-management-framework
-39. ISO/IEC (2023). *ISO/IEC 42001: AI Management Systems.* https://www.iso.org/standard/42001
+[29] OpenTelemetry. *Semantic Conventions for Generative AI* (spans, metrics; status: Development). https://opentelemetry.io/docs/specs/semconv/registry/attributes/gen-ai/ ; https://github.com/open-telemetry/semantic-conventions-genai
+[30] OpenTelemetry (2025). *AI Agent Observability — Evolving Standards and Best Practices.* https://opentelemetry.io/blog/2025/ai-agent-observability/
+[31] OpenTelemetry (2026). *Inside the LLM Call: GenAI Observability with OpenTelemetry.* https://opentelemetry.io/blog/2026/genai-observability/
+[32] OpenTelemetry. *Semantic Conventions for Model Context Protocol* (Development). https://opentelemetry.io/docs/specs/semconv/gen-ai/mcp/
+[33] W3C (2020). *Trace Context.* W3C Recommendation. https://www.w3.org/TR/trace-context/
+[34] Traceloop. *OpenLLMetry.* https://github.com/traceloop/openllmetry
+[35] Arize AI. *OpenInference Specification.* https://github.com/Arize-ai/openinference
+[36] Model Context Protocol. *OpenTelemetry trace support* (discussion #269). https://github.com/modelcontextprotocol/modelcontextprotocol/discussions/269
+[37] European Union (2024). *AI Act, Regulation (EU) 2024/1689* — Art. 12 (Record-keeping), Art. 72 (Post-market monitoring). https://artificialintelligenceact.eu/article/12/
+[38] NIST (2023/2024). *AI Risk Management Framework 1.0* and *Generative AI Profile (NIST AI 600-1).* https://www.nist.gov/itl/ai-risk-management-framework
+[39] ISO/IEC (2023). *ISO/IEC 42001: AI Management Systems.* https://www.iso.org/standard/42001
 
 ### Books and long-form practitioner literature
 
-40. Beyer, B., Jones, C., Petoff, J., Murphy, N. R., eds. (2016). *Site Reliability Engineering*, Ch. 6. O'Reilly. https://sre.google/sre-book/monitoring-distributed-systems/
-41. Sridharan, C. (2018). *Distributed Systems Observability.* O'Reilly. https://www.oreilly.com/library/view/distributed-systems-observability/9781492033431/
-42. Huyen, C. (2022). *Designing Machine Learning Systems.* O'Reilly. (Ch. 8: Data Distribution Shifts and Monitoring.) https://huyenchip.com/2022/02/07/data-distribution-shifts-and-monitoring.html
-43. Carter, P. (2024). *Observability for Large Language Models.* O'Reilly. https://www.oreilly.com/library/view/observability-for-large/9781098159757/
-44. Huyen, C. (2025). *AI Engineering: Building Applications with Foundation Models.* O'Reilly. https://www.oreilly.com/library/view/ai-engineering/9781098166298/
-45. Majors, C., Fong-Jones, L., Miranda, G., with Parker, A. (2026). *Observability Engineering*, 2nd ed. O'Reilly. https://www.oreilly.com/library/view/observability-engineering-2nd/9781098179915/
+[40] Beyer, B., Jones, C., Petoff, J., Murphy, N. R., eds. (2016). *Site Reliability Engineering*, Ch. 6. O'Reilly. https://sre.google/sre-book/monitoring-distributed-systems/
+[41] Sridharan, C. (2018). *Distributed Systems Observability.* O'Reilly. https://www.oreilly.com/library/view/distributed-systems-observability/9781492033431/
+[42] Huyen, C. (2022). *Designing Machine Learning Systems.* O'Reilly. (Ch. 8: Data Distribution Shifts and Monitoring.) https://huyenchip.com/2022/02/07/data-distribution-shifts-and-monitoring.html
+[43] Carter, P. (2024). *Observability for Large Language Models.* O'Reilly. https://www.oreilly.com/library/view/observability-for-large/9781098159757/
+[44] Huyen, C. (2025). *AI Engineering: Building Applications with Foundation Models.* O'Reilly. https://www.oreilly.com/library/view/ai-engineering/9781098166298/
+[45] Majors, C., Fong-Jones, L., Miranda, G., with Parker, A. (2026). *Observability Engineering*, 2nd ed. O'Reilly. https://www.oreilly.com/library/view/observability-engineering-2nd/9781098179915/
 
 ### Category-defining industry sources (grey literature)
 
-46. Carter, P. (2023). *All the Hard Stuff Nobody Talks About when Building Products with LLMs.* Honeycomb. https://www.honeycomb.io/blog/hard-stuff-nobody-talks-about-llm
-47. Majors, C., Carter, P. (2023). *Observability in the Age of AI.* Honeycomb. https://www.honeycomb.io/blog/observability-age-of-ai
-48. Arize AI (2023). *LLM Observability 101* (whitepaper). https://arize.com/wp-content/uploads/2023/11/LLM-Observability-101-1.pdf
-49. Datadog (2024). *LLM Observability GA*; (2025) *OTel GenAI semantic-convention support.* https://docs.datadoghq.com/llm_observability/ ; https://www.datadoghq.com/blog/llm-otel-semantic-convention/
-50. Braintrust (2025–26). *What is LLM observability?* ; *Agent observability: the complete guide for 2026.* https://www.braintrust.dev/articles/llm-observability-guide ; https://www.braintrust.dev/articles/agent-observability-complete-guide-2026
-51. LangChain (2025). *Agent Observability Powers Agent Evaluation.* https://www.langchain.com/blog/agent-observability-powers-agent-evaluation
-52. OpenAI. *Agents SDK — Tracing.* https://openai.github.io/openai-agents-python/tracing/
-53. Es, S., et al. (2023). *RAGAS: Automated Evaluation of Retrieval Augmented Generation.* https://www.ragas.io/
-54. TruLens. *The RAG Triad.* https://www.trulens.org/getting_started/core_concepts/rag_triad/
-55. Langfuse. *Open-source LLM engineering platform.* https://github.com/langfuse/langfuse
-56. Grafana Labs / OpenLIT (2025). *AI observability for MCP servers.* https://grafana.com/blog/ai-observability-MCP-servers/
+[46] Carter, P. (2023). *All the Hard Stuff Nobody Talks About when Building Products with LLMs.* Honeycomb. https://www.honeycomb.io/blog/hard-stuff-nobody-talks-about-llm
+[47] Majors, C., Carter, P. (2023). *Observability in the Age of AI.* Honeycomb. https://www.honeycomb.io/blog/observability-age-of-ai
+[48] Arize AI (2023). *LLM Observability 101* (whitepaper). https://arize.com/wp-content/uploads/2023/11/LLM-Observability-101-1.pdf
+[49] Datadog (2024). *LLM Observability GA*; (2025) *OTel GenAI semantic-convention support.* https://docs.datadoghq.com/llm_observability/ ; https://www.datadoghq.com/blog/llm-otel-semantic-convention/
+[50] Braintrust (2025–26). *What is LLM observability?* ; *Agent observability: the complete guide for 2026.* https://www.braintrust.dev/articles/llm-observability-guide ; https://www.braintrust.dev/articles/agent-observability-complete-guide-2026
+[51] LangChain (2025). *Agent Observability Powers Agent Evaluation.* https://www.langchain.com/blog/agent-observability-powers-agent-evaluation
+[52] OpenAI. *Agents SDK — Tracing.* https://openai.github.io/openai-agents-python/tracing/
+[53] Es, S., et al. (2023). *RAGAS: Automated Evaluation of Retrieval Augmented Generation.* https://www.ragas.io/
+[54] TruLens. *The RAG Triad.* https://www.trulens.org/getting_started/core_concepts/rag_triad/
+[55] Langfuse. *Open-source LLM engineering platform.* https://github.com/langfuse/langfuse
+[56] Grafana Labs / OpenLIT (2025). *AI observability for MCP servers.* https://grafana.com/blog/ai-observability-MCP-servers/
 
 ### Industry state-of-play sources, 2025–2026 (grey literature)
 
-57. METR (2026). *Frontier Risk Report, February–March 2026* — cross-lab pilot on internal agent monitoring; labs' automated transcript-review practices. https://metr.org/blog/2026-05-19-frontier-risk-report/
-58. Splunk (2026). *Ahead of the Curve: How Recent M&A Forecasts New Observability Trends for 2026.* https://www.splunk.com/en_us/blog/observability/new-observability-trends-for-2026.html
-59. Gupta, D. (2026). *AI Agent Observability, Evaluation, Governance: The 2026 Market Reality Check.* https://guptadeepak.com/ai-agent-observability-evaluation-governance-the-2026-market-reality-check/
-60. Mordor Intelligence (2026). *Observability Market Size & Competitive Landscape.* https://www.mordorintelligence.com/industry-reports/observability-market
-61. Datadog. *Bits AI SRE / Bits Investigation.* https://www.datadoghq.com/product/ai/bits-investigation/
-62. MLflow (2026). *Top LLM and Agent Observability Tools in 2026.* https://mlflow.org/top-5-agent-observability-tools/
-63. Arthur (2026). *Choosing an AI Observability Platform in 2026.* https://www.arthur.ai/column/what-to-look-for-ai-observability-platform-2026
-64. OpenObserve (2026). *Top Open Source LLM Observability Tools in 2026.* https://openobserve.ai/blog/llm-observability-tools/
-65. Greptime (2026). *How OpenTelemetry Traces LLM Calls, Agent Reasoning, and MCP Tools.* https://greptime.com/blogs/2026-05-09-opentelemetry-genai-semantic-conventions
+[57] METR (2026). *Frontier Risk Report, February–March 2026* — cross-lab pilot on internal agent monitoring; labs' automated transcript-review practices. https://metr.org/blog/2026-05-19-frontier-risk-report/
+[58] Splunk (2026). *Ahead of the Curve: How Recent M&A Forecasts New Observability Trends for 2026.* https://www.splunk.com/en_us/blog/observability/new-observability-trends-for-2026.html
+[59] Gupta, D. (2026). *AI Agent Observability, Evaluation, Governance: The 2026 Market Reality Check.* https://guptadeepak.com/ai-agent-observability-evaluation-governance-the-2026-market-reality-check/
+[60] Mordor Intelligence (2026). *Observability Market Size & Competitive Landscape.* https://www.mordorintelligence.com/industry-reports/observability-market
+[61] Datadog. *Bits AI SRE / Bits Investigation.* https://www.datadoghq.com/product/ai/bits-investigation/
+[62] MLflow (2026). *Top LLM and Agent Observability Tools in 2026.* https://mlflow.org/top-5-agent-observability-tools/
+[63] Arthur (2026). *Choosing an AI Observability Platform in 2026.* https://www.arthur.ai/column/what-to-look-for-ai-observability-platform-2026
+[64] OpenObserve (2026). *Top Open Source LLM Observability Tools in 2026.* https://openobserve.ai/blog/llm-observability-tools/
+[65] Greptime (2026). *How OpenTelemetry Traces LLM Calls, Agent Reasoning, and MCP Tools.* https://greptime.com/blogs/2026-05-09-opentelemetry-genai-semantic-conventions
