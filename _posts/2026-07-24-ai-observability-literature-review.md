@@ -16,7 +16,7 @@ It should be noted that in this field, industry practice is running ahead of aca
 
 In this article, I am going to review both the literature and the current industry progress on observability of modern AI application systems. The article is organized as follows. Section 2 and Section 3 review the classical observability and ML-monitoring foundations on which the field is built. Section 4 and Section 5 describe how the problem space changed with LLM applications and how "LLM observability" became a product category. Section 6 summarizes the industry state of play as of mid-2026, including market dynamics and frontier practice. Section 7 and Section 8 review the academic work on evaluation and on agent observability. Section 9 and Section 10 cover the emerging standards and the regulatory drivers. Section 11 concludes with a synthesis and a list of open research gaps.
 
-As discussed above, industry takes an important lead in this field. Accordingly, following the convention of multivocal literature reviews, grey literature such as vendor whitepapers, engineering blogs, and arXiv preprints is included and flagged throughout the article. In particular, the industry figures in Section 6 should not be taken too literally.
+As discussed above, industry takes an important lead in this field. Accordingly, following the convention of multivocal literature reviews, grey literature such as vendor whitepapers, engineering blogs, and arXiv preprints is included and flagged throughout the article. Consequently, the industry figures, in Section 6 in particular, should not be taken too literally.
 
 ## 2. Foundations: Observability in Distributed Systems
 
