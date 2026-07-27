@@ -446,7 +446,7 @@ curl -s localhost:8000/documents | jq .
 
 1. **Presign an upload, not just a download.** Add `GET /documents/upload-url` returning a presigned URL for `put_object` with a fresh document id, so a client can upload straight to S3 without the bytes ever reaching our API. Notice what breaks: the `Metadata={"filename": ...}` trick has nowhere to run anymore, since we never see the upload happen.
 2. Add server-side encryption. Drop `"ServerSideEncryption": "AES256"` into the `ExtraArgs` in `upload_document`, then confirm it took by checking the `ServerSideEncryption` field on a `head_object` response.
-3. Add a real expiration rule on objects under a `tmp/` prefix, in addition to the noncurrent-version one. You won't see it fire this weekend (see the fidelity note above about lifecycle timing), but it's worth writing the rule correctly and noting it in Appendix C to check against real AWS someday.
+3. Add a real expiration rule on objects under a `tmp/` prefix, in addition to the noncurrent-version one. You won't see it fire this weekend (see the fidelity note above about lifecycle timing), but it's worth writing the rule correctly and noting it in the series' fidelity appendix (coming at the end of the series) to check against real AWS someday.
 4. **Force a multipart upload and go watch it happen.** Pass `TransferConfig(multipart_threshold=1024 * 1024)` into `upload_fileobj`, upload something over 1 MB, and set `LOG_LEVEL=DEBUG` on the MiniStack container to watch the individual `UploadPart` calls scroll by.
 
 ## What is next
