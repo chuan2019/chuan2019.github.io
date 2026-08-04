@@ -11,7 +11,7 @@ Over the past few years, along with the rapid growth of LLM-based products and s
 
 Prompt caching addresses exactly this redundancy. It allows the provider to store the intermediate computation for a prompt prefix and reuse it when a later request starts with the same bytes. When applied correctly, cached tokens are billed at approximately 10% of the normal input price (Anthropic, Bedrock, Gemini, DeepSeek; around 50% on older OpenAI models), and the time-to-first-token on long prompts is reduced by up to 80–85%. When applied incorrectly — a timestamp interpolated in the wrong place, a batch fired in parallel, a breakpoint placed on the varying block — the savings silently fail to materialize, or the total cost even increases.
 
-In this article, I am going to summarize the practical guide on the mechanism and usage of prompt caching, based on the provider documentation of Anthropic, OpenAI, AWS Bedrock, Google Gemini and DeepSeek, as well as the serving-engine internals of vLLM. Section 1 explains how the mechanism works inside the transformer; Section 2 covers the explicit caching API in detail; Section 3 presents worked examples with real numbers; Sections 4 and 5 provide a cross-provider comparison and design guidelines. All references are listed at the end.
+In this article, I am going to summarize the practical guide on the mechanism and usage of prompt caching, based on the provider documentation of Anthropic, OpenAI, AWS Bedrock, Google Gemini and DeepSeek, as well as the serving-engine internals of vLLM. Section 1 explains how the mechanism works inside the transformer; Section 2 covers the explicit caching API in detail; Section 3 presents worked examples with real numbers; Sections 4 and 5 provide a cross-provider comparison and design guidelines; and the appendix demonstrates the mechanism end to end on a locally hosted model, where the cache behavior can be measured directly. All references are listed at the end.
 
 One clarification before we start: what is cached is the input processing only. The model's generation is not cached — two requests with a fully-cached identical prompt still produce fresh (and, with sampling, different) outputs. Prompt caching is therefore not response memoization.
 
@@ -340,6 +340,195 @@ The mechanics are universal, since they all follow from causal-attention prefix 
 
 In this article, the practical guide on the mechanism and usage of prompt caching is summarized. The transformer inference process — tokenization, attention, causal masking, and the prefill/decode split — is explained to show why prompt caching takes the form of byte-exact prefix reuse of the KV cache, and why the cache's memory footprint drives the commercial TTL and pricing structures. The explicit caching API is then examined in detail, covering breakpoint placement, TTL selection, break-even analysis, invalidation behavior, verification, and the fan-out trap, followed by four worked examples with real cost numbers and a comparison across six providers. The guidelines can be condensed into one sentence: structure prompts with stable content first and volatile content last, mark breakpoints only where prefixes repeat, and verify with the usage fields rather than assumptions.
 
+## Appendix A. Observing Prompt Caching on a Locally Hosted Model
+
+Sections 2.5 and 4 describe how each provider reports caching through the `usage` fields of its response. Those fields are the only window a hosted API offers into the mechanism, and they arrive attached to a bill. A locally hosted serving engine exposes the same prefix reuse directly and reports it per request, which makes it a convenient way to observe the behavior derived in Section 1 end to end — at no cost, and on a laptop. This appendix reproduces the document question-answering scenario of Section 3.1 against a local server, and measures the three properties on which the rest of the article rests: that a repeated prefix is reused, that a single changed byte invalidates everything after it, and that the reuse is a prefix match and not a substring match.
+
+The experiment is run twice, on two engines that report caching in different ways: llama.cpp on the CPU, which accounts for reuse to the exact token, and vLLM on a GPU, which matches in fixed-size blocks. Both run as containers, so neither requires a build toolchain or a Python environment on the host.
+
+### A.1 Environment
+
+| Component | Value |
+|---|---|
+| Engine | `ghcr.io/ggml-org/llama.cpp:server`, llama.cpp build 10236 (`1464c62d8`), CPU |
+| Model | Qwen2.5-0.5B-Instruct, Q4_K_M quantization, 469 MB |
+| Host | Intel Core Ultra 9 185H, Docker 29.6.2 on WSL2 (Ubuntu) |
+| Server | 8,192-token context, a single slot (`--parallel 1`) |
+
+The small model is a deliberate choice: prompt caching is a property of the serving path rather than of model quality, and a 0.5B model makes the experiment reproducible on any laptop without a GPU. Note that the absolute timings below scale with model size, whereas the ratios do not.
+
+### A.2 Starting the server
+
+The engine runs as a container, so no build toolchain is required:
+
+```bash
+docker run -d --name llamacpp-demo \
+    -p 8080:8080 \
+    -v llama-cache:/root/.cache/llama.cpp \
+    ghcr.io/ggml-org/llama.cpp:server \
+    -hf Qwen/Qwen2.5-0.5B-Instruct-GGUF:Q4_K_M \
+    --host 0.0.0.0 --port 8080 -c 8192 --parallel 1
+```
+
+The `-hf` flag makes the server fetch the model from Hugging Face on first start; the named volume caches it so that subsequent runs start immediately. Binding to `0.0.0.0` inside the container is what allows the published port to be reached from the host. A CUDA build of the same image is available as `ghcr.io/ggml-org/llama.cpp:server-cuda`, which additionally takes `--gpus all` and an `-ngl 99` offload flag; the measurements below deliberately use the CPU image so that they can be reproduced without a GPU.
+
+The single slot matters for the interpretation of the results. llama.cpp maintains one KV cache per slot and routes each incoming request to the slot whose cached prompt shares the longest prefix with it. With one slot, the only cache available to a request is the one left behind by its immediate predecessor, so every hit reported below is unambiguously a prefix match rather than an artifact of slot selection.
+
+### A.3 The measurement script
+
+The script below sends five requests and reports, for each, how many prompt tokens were served from the cache and how many had to be prefilled. It uses the standard library only.
+
+```python
+#!/usr/bin/env python3
+import json
+import urllib.request
+
+SERVER = "http://127.0.0.1:8080/completion"
+
+# Stand-in for the document that every request re-sends. Roughly 2,200 tokens.
+PARAGRAPH = (
+    "Section {n}. The ingest service accepts a document, assigns it an identifier, "
+    "stores the payload in object storage, and records the metadata row. Retries are "
+    "idempotent: a repeated submission with the same identifier overwrites nothing and "
+    "returns the original record. Failures are retried three times with exponential "
+    "backoff before the document is routed to the dead-letter queue.\n"
+)
+DOCUMENT = "".join(PARAGRAPH.format(n=i) for i in range(1, 31))
+
+# One word changed in the FIRST paragraph — the earliest position that can differ.
+DOCUMENT_EDITED = DOCUMENT.replace("accepts a document", "accepts a payload", 1)
+
+PREAMBLE = "You are a careful technical assistant. Answer using only the document below.\n\n"
+PREAMBLE_ALT = "You are a meticulous reviewer on the platform team. Use the document below.\n\n"
+
+
+def ask(preamble, document, question, label):
+    prompt = preamble + document + "\nQuestion: " + question + "\nAnswer:"
+    body = json.dumps(
+        {"prompt": prompt, "n_predict": 1, "temperature": 0, "cache_prompt": True}
+    ).encode()
+    request = urllib.request.Request(
+        SERVER, data=body, headers={"Content-Type": "application/json"}
+    )
+    with urllib.request.urlopen(request) as response:
+        data = json.load(response)
+    t = data["timings"]
+    print(
+        f"{label:<38}{t['cache_n'] + t['prompt_n']:>7}{t['cache_n']:>9}"
+        f"{t['prompt_n']:>11}{t['prompt_ms']:>12.1f}"
+    )
+    return t
+
+
+print(f"{'request':<38}{'prompt':>7}{'cached':>9}{'evaluated':>11}{'prefill ms':>12}")
+print("-" * 77)
+
+cold = ask(PREAMBLE, DOCUMENT, "What does the ingest service do?", "1. cold start")
+warm = ask(PREAMBLE, DOCUMENT, "How many retries are attempted?", "2. same prefix, new question")
+ask(PREAMBLE, DOCUMENT, "Where do failed documents go?", "3. same prefix, new question")
+edit = ask(PREAMBLE, DOCUMENT_EDITED, "Where do failed documents go?", "4. one word changed in para 1")
+mid = ask(PREAMBLE_ALT, DOCUMENT, "Where do failed documents go?", "5. same document, new preamble")
+
+print("-" * 77)
+print(f"warm request prefills {warm['prompt_n']} of {warm['cache_n'] + warm['prompt_n']} tokens, "
+      f"{(1 - warm['prompt_ms'] / cold['prompt_ms']) * 100:.1f}% less prefill time")
+print(f"after the one-word edit: {edit['cache_n']} tokens reused")
+print(f"document moved behind a different preamble: {mid['cache_n']} tokens reused")
+```
+
+Two details of the request body are worth noting. `n_predict` is set to 1 because the quantity of interest is the prefill, not the generation; and `cache_prompt` is set explicitly, although it is the default in current builds.
+
+### A.4 Results
+
+```text
+request                                prompt   cached  evaluated  prefill ms
+-----------------------------------------------------------------------------
+1. cold start                            2266        0       2266      6196.7
+2. same prefix, new question             2265     2257          8        42.4
+3. same prefix, new question             2265     2257          8        41.4
+4. one word changed in para 1            2265       23       2242      6080.2
+5. same document, new preamble           2266        3       2263      6241.7
+-----------------------------------------------------------------------------
+warm request prefills 8 of 2265 tokens, 99.3% less prefill time
+after the one-word edit: 23 tokens reused
+document moved behind a different preamble: 3 tokens reused
+```
+
+The two columns that carry the result are the local counterparts of the API usage fields introduced in Section 2.5:
+
+| llama.cpp field | Counterpart in Section 2.5 | Meaning |
+|---|---|---|
+| `timings.cache_n` | `cache_read_input_tokens` | Prompt tokens served from the KV cache |
+| `timings.prompt_n` | `input_tokens` | Prompt tokens actually prefilled |
+| `timings.prompt_ms` | not exposed by the hosted APIs | Wall-clock prefill time |
+
+### A.5 What the measurements show
+
+**Reuse.** Requests 2 and 3 re-send 2,265 tokens and prefill 8 of them — precisely the tokens of the new question. Prefill time falls from 6,197 ms to 42.4 ms, a reduction of 99.3%, which is the local counterpart of the time-to-first-token improvement quoted in Section 1 and priced in Section 3.1. The 2,257 reused tokens are exactly the shared preamble and document.
+
+**Byte exactness.** Request 4 changes a single word ("document" to "payload") in the first of the document's thirty paragraphs, and asks the same question as request 3. Reuse collapses from 2,257 tokens to 23, and prefill time returns to its cold value. Those 23 tokens are precisely the ones preceding the edit: the reuse boundary lands on the first differing token, exactly as Section 1.2 predicts. Nothing after that point survives, even though twenty-nine of the thirty paragraphs are untouched and byte-identical.
+
+**Prefix, not substring.** Request 5 restores the document byte for byte and changes only the preamble in front of it. Reuse falls to 3 tokens — the handful of words the two preambles happen to share — and the identical 2,200-token document behind it is prefilled again from scratch. A cached passage in the middle of a prompt is worth nothing; only a shared beginning is.
+
+Accordingly, the guideline that opens Section 5.1 can be observed directly rather than taken on trust: the cost of a prompt is determined by the position of its first volatile token, and any stable content placed after that token pays full price on every request.
+
+### A.6 The same experiment on vLLM
+
+Running the identical five requests against vLLM, which implements the block-based automatic prefix caching described in Section 1.3, exposes a property that llama.cpp's token-exact accounting conceals. The engine runs as a container as well, this time with the GPU attached:
+
+```bash
+docker run -d --name vllm-demo \
+    --gpus all --ipc=host \
+    -p 8000:8000 \
+    -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+    vllm/vllm-openai:v0.10.2 \
+    --model Qwen/Qwen2.5-0.5B-Instruct \
+    --max-model-len 8192 --gpu-memory-utilization 0.6
+```
+
+Caching requires no flag: the startup log reports `enable_prefix_caching=True` among the defaults. The version is pinned deliberately, as vLLM 0.26 fails at engine startup under WSL2 with `RuntimeError: UVA is not available`, a limitation of CUDA under WSL2 rather than a defect of the engine.
+
+Where the figures come from deserves a note of its own, because the obvious place to look is empty. This version of vLLM leaves `usage.prompt_tokens_details` set to `null` on both `/v1/completions` and `/v1/chat/completions`, even on requests that demonstrably hit the cache. Reuse is instead reported by the Prometheus counters on `/metrics`, both expressed in tokens, and the increase in the hit counter across a single request is that request's equivalent of `cache_read_input_tokens`:
+
+```python
+def counters():
+    """Prefix-cache (queries, hits) totals, in tokens."""
+    text = urllib.request.urlopen(BASE + "/metrics").read().decode()
+    queries = hits = 0.0
+    for line in text.splitlines():
+        if line.startswith("vllm:prefix_cache_queries_total"):
+            queries = float(line.rsplit(" ", 1)[1])
+        elif line.startswith("vllm:prefix_cache_hits_total"):
+            hits = float(line.rsplit(" ", 1)[1])
+    return queries, hits
+```
+
+With the reuse measured that way and the prompts unchanged from Section A.3, the same five requests produce:
+
+```text
+request                                prompt   cached  evaluated  latency ms
+-----------------------------------------------------------------------------
+1. cold start                            2266        0       2266       366.7
+2. same prefix, new question             2265     2256          9        14.9
+3. same prefix, new question             2265     2256          9        18.1
+4. one word changed in para 1            2265       16       2249        54.3
+5. same document, new preamble           2266        0       2266        51.0
+-----------------------------------------------------------------------------
+warm            2256 tokens reused  = 141 blocks of 16 tokens
+after edit        16 tokens reused  = 1 blocks of 16 tokens
+new preamble       0 tokens reused  (below one block)
+```
+
+The three properties of Section A.5 reappear unchanged — the warm request reuses nearly the whole prompt and completes in 14.9 ms against a cold 366.7 ms, the one-word edit destroys the reuse, and the document behind a different preamble is not reused at all. What differs is the granularity:
+
+| Measurement | llama.cpp | vLLM |
+|---|---|---|
+| Warm request | 2,257 tokens | 2,256 tokens (141 × 16) |
+| After the one-word edit | 23 tokens | 16 tokens (one block) |
+| Document behind a new preamble | 3 tokens | 0 tokens (below one block) |
+
+vLLM hashes and matches whole blocks of 16 tokens, so every figure is rounded down to a block boundary and a partial block is never reused. The 23 tokens that llama.cpp preserves after the edit survive here as a single block, and the 3 shared preamble tokens of request 5 disappear entirely. This is the mechanism behind the round minimum-prefix figures quoted in Section 4: an engine whose cache is keyed on blocks cannot reuse, or bill for, a fraction of one.
+
 ## References
 
 - [Anthropic — Prompt caching documentation](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
@@ -349,6 +538,8 @@ In this article, the practical guide on the mechanism and usage of prompt cachin
 - [Google — Gemini API context caching](https://ai.google.dev/gemini-api/docs/caching) and [Vertex AI context cache overview](https://cloud.google.com/vertex-ai/generative-ai/docs/context-cache/context-cache-overview)
 - [DeepSeek — Context caching on disk announcement](https://api-docs.deepseek.com/news/news0802/) and [KV cache guide](https://api-docs.deepseek.com/guides/kv_cache/)
 - [vLLM — Automatic prefix caching design doc](https://docs.vllm.ai/en/stable/design/prefix_caching/)
+- [llama.cpp — server README (prompt caching and the `timings` fields)](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md)
+- [Qwen2.5-0.5B-Instruct-GGUF — model used in Appendix A](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF)
 - [BentoML LLM Inference Handbook — Prefix caching](https://bentoml.com/llm/inference-optimization/prefix-caching)
 - [How prompt caching works — Paged Attention and APC (sankalp)](https://sankalp.bearblog.dev/how-prompt-caching-works/)
 - [Caylent — Amazon Bedrock prompt caching](https://caylent.com/blog/prompt-caching-saving-time-and-money-in-llm-applications)
