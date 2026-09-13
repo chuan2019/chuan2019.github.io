@@ -177,7 +177,7 @@ $$
 
 Note $$K_0 = 2\,\mathbf{e}_0$$: both padding slots are $$\texttt{<bos>}$$, so the two basis vectors land in the same column. It is the only entry in the model holding a $$2$$.
 
-Note also $$K_5 = K_{13} = \mathbf{e}_4 + \mathbf{e}_5$$. Identical context at different positions yields an identical key, because the toy has **no positional encoding**. In a real model, where RoPE ([Su et al., 2021]{https://arxiv.org/pdf/2104.09864}) or ALiBi ([Press, Smith & Lewis, 2021]{https://arxiv.org/pdf/2108.12409}) folds position into $$K$$, these rows would differ — the constraint that Part 3 lives inside.
+Note also $$K_5 = K_{13} = \mathbf{e}_4 + \mathbf{e}_5$$. Identical context at different positions yields an identical key, because the toy has **no positional encoding**. In a real model, where RoPE ([Su et al., 2021](https://arxiv.org/pdf/2104.09864)) or ALiBi ([Press, Smith & Lewis, 2021](https://arxiv.org/pdf/2108.12409)) folds position into $$K$$, these rows would differ — the constraint that Part 3 lives inside.
 
 ### 3.4 The query
 
