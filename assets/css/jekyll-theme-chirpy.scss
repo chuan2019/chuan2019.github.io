@@ -51,3 +51,12 @@
   --highlight-bg-color: #f6f8fa;
   --language-border-color: #e1e4e8;
 }
+
+/* Wide display math (e.g. the 27-column weight matrices in the attention
+   walkthrough) scrolls inside the content column instead of overflowing it. */
+mjx-container[display='true'] {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0;
+}

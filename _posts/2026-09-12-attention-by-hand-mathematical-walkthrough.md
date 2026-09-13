@@ -127,9 +127,9 @@ $$
 
 and the query is the last row of $$(P + P^0)\bar X$$, i.e. $$q^\top = \bar X_{t-1} + \bar X_{t}$$.
 
-This is the structural point of the toy: $$P$$ acts on the **position** axis. A real $$W_K \in \mathbb{R}^{d_{\text{head}} \times d_{\text{model}}}$$ acts on the **feature** axis and sees only the residual stream at position $$i$$, so it cannot reach backwards to $$i-1$$. Since attention is the only operation that moves information between positions, a real model **cannot express this rule in a single layer**; it requires the two-layer induction circuit of §9.
+This is the structural point of the toy: $$P$$ acts on the **position** axis. A real $$W_K \in \mathbb{R}^{d_{\text{head}} \times d_{\text{model}}}$$ acts on the **feature** axis and sees only the residual stream at position $$i$$, so it cannot reach backwards to $$i-1$$. Since attention is the only operation that moves information between positions, a real model **cannot express this rule in a single layer**; it requires the two-layer induction circuit of §10.4, and §3.4 restates the limit in terms of weight matrices.
 
-### 3.3 The key matrix, numerically
+### 3.3 The key and value matrices, numerically
 
 Applying §3.1 position by position:
 
@@ -179,7 +179,193 @@ Note $$K_0 = 2\,\mathbf{e}_0$$: both padding slots are $$\texttt{<bos>}$$, so th
 
 Note also $$K_5 = K_{13} = \mathbf{e}_4 + \mathbf{e}_5$$. Identical context at different positions yields an identical key, because the toy has **no positional encoding**. In a real model, where RoPE ([Su et al., 2021](https://arxiv.org/pdf/2104.09864)) or ALiBi ([Press, Smith & Lewis, 2021](https://arxiv.org/pdf/2108.12409)) folds position into $$K$$, these rows would differ — the constraint that Part 3 lives inside.
 
-### 3.4 The query
+The value matrix follows from $$v_i = e(x_i)$$ row by row, so it coincides with the sequence matrix $$X$$ of §2.2:
+
+$$
+V = X =
+\begin{bmatrix}
+0&1&0&0&0&0&0&0&0\\
+0&0&1&0&0&0&0&0&0\\
+0&0&0&1&0&0&0&0&0\\
+0&0&0&0&1&0&0&0&0\\
+0&0&0&0&0&1&0&0&0\\
+0&0&1&0&0&0&0&0&0\\
+0&0&0&0&0&0&1&0&0\\
+0&0&0&0&1&0&0&0&0\\
+0&0&0&0&0&0&0&1&0\\
+0&0&1&0&0&0&0&0&0\\
+0&0&0&0&0&0&0&0&1\\
+0&0&0&0&1&0&0&0&0\\
+0&0&0&0&0&1&0&0&0\\
+0&0&1&0&0&0&0&0&0
+\end{bmatrix}
+$$
+
+Every row of $$V$$ holds a single $$1$$, in the column of the token at that position, so no entry exceeds $$1$$. Repeated tokens give repeated rows: positions $$1, 5, 9, 13$$ all hold $$\texttt{->}$$, and $$V_1 = V_5 = V_9 = V_{13} = \mathbf{e}_2$$. Row $$6$$, the payload the lookup retrieves in §4–§6, is $$V_6 = \mathbf{e}_6 = e(\texttt{woof})$$.
+
+### 3.4 Weight-matrix form of the projections
+
+A real layer produces keys and values with learned matrices, each acting on one position's vector at a time. Write $$\mathbf{x}_i = e(x_i)$$ for row $$i$$ of $$X$$. In the column-vector convention of §10.5, with $$W_V, W_K \in \mathbb{R}^{d_{\text{head}} \times d_{\text{model}}}$$,
+
+$$
+v_i = W_V\,\mathbf{x}_i, \qquad k_i = W_K\,\mathbf{x}_i .
+$$
+
+Stacking the tokens as columns, $$X^\top \in \mathbb{R}^{9 \times 14}$$, gives the matrix forms
+
+$$
+V^\top = W_V\,X^\top, \qquad K^\top = W_K\,X^\top ,
+$$
+
+or equivalently $$V = X W_V^\top$$ and $$K = X W_K^\top$$ in the token-per-row layout used for the matrices of §3.3.
+
+#### 3.4.1 The value projection is the identity
+
+Since $$v_i = \mathbf{x}_i$$ at every position, the value weights are the $$9 \times 9$$ identity:
+
+$$
+W_V = I_9 =
+\begin{bmatrix}
+1&0&0&0&0&0&0&0&0\\
+0&1&0&0&0&0&0&0&0\\
+0&0&1&0&0&0&0&0&0\\
+0&0&0&1&0&0&0&0&0\\
+0&0&0&0&1&0&0&0&0\\
+0&0&0&0&0&1&0&0&0\\
+0&0&0&0&0&0&1&0&0\\
+0&0&0&0&0&0&0&1&0\\
+0&0&0&0&0&0&0&0&1
+\end{bmatrix} ,
+\qquad
+V = X\,I_9^\top = X .
+$$
+
+#### 3.4.2 No key projection acts on X alone
+
+Suppose some $$W_K \in \mathbb{R}^{9 \times 9}$$ gave $$k_i = W_K\,\mathbf{x}_i$$ at every position. Positions $$1$$ and $$5$$ both hold $$\texttt{->}$$, so their inputs are identical, and therefore so are their projections:
+
+$$
+\mathbf{x}_1 = \mathbf{x}_5 = \mathbf{e}_2 \quad\Longrightarrow\quad W_K\,\mathbf{x}_1 = W_K\,\mathbf{x}_5 .
+$$
+
+The rule of §3.1, however, requires different keys at those two positions:
+
+$$
+k_1 = e(\texttt{<bos>}) + e(\texttt{cat}) = \mathbf{e}_0 + \mathbf{e}_1 \;\neq\; \mathbf{e}_4 + \mathbf{e}_5 = e(\texttt{;}) + e(\texttt{dog}) = k_5 .
+$$
+
+No matrix, and in fact no function of $$\mathbf{x}_i$$ alone, sends one input to two different outputs. This is the position-axis argument of §3.2 restated in weight-matrix form: the context a key needs is not present in $$\mathbf{x}_i$$, so no choice of $$W_K$$ can recover it.
+
+#### 3.4.3 Supplying the context: an augmented residual stream
+
+A real transformer obtains that context from depth (§10.4). Heads in an earlier layer copy neighbouring tokens forward, so that by the time the key is computed, the vector at position $$i$$ also carries $$x_{i-1}$$ and, for this toy's two-token key, $$x_{i-2}$$. Modelling that outcome directly, concatenate each token with the two before it, padding with $$\texttt{<bos>}$$ as in §1.3:
+
+$$
+\mathbf{h}_i = \begin{bmatrix} e(x_i) \\ e(x_{i-1}) \\ e(x_{i-2}) \end{bmatrix} \in \mathbb{R}^{27},
+\qquad
+H = \big[\, X \;\big\vert\; X^{(-1)} \;\big\vert\; X^{(-2)} \,\big] \in \mathbb{R}^{14 \times 27}
+$$
+
+where row $$i$$ of $$X^{(-1)}$$ is $$e(x_{i-1})$$ and row $$i$$ of $$X^{(-2)}$$ is $$e(x_{i-2})$$; in the notation of §3.2, $$X^{(-1)} = [P\bar{X}]_{0:14}$$ and $$X^{(-2)} = [P^2\bar{X}]_{0:14}$$. Numerically, with the three blocks separated:
+
+$$
+H =
+\left[\begin{array}{ccccccccc|ccccccccc|ccccccccc}
+0&1&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0\\
+0&0&1&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0\\
+0&0&0&1&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0\\
+0&0&0&0&1&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&1&0&0&0&0&0&0\\
+0&0&0&0&0&1&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&1&0&0&0&0&0\\
+0&0&1&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&1&0&0&0&0\\
+0&0&0&0&0&0&1&0&0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0\\
+0&0&0&0&1&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&1&0&0&0&0&0&0\\
+0&0&0&0&0&0&0&1&0&0&0&0&0&1&0&0&0&0&0&0&0&0&0&0&1&0&0\\
+0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&1&0&0&0&0\\
+0&0&0&0&0&0&0&0&1&0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&1&0\\
+0&0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&1&0&0&1&0&0&0&0&0&0\\
+0&0&0&0&0&1&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&1\\
+0&0&1&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&1&0&0&0&0
+\end{array}\right]
+$$
+
+Against this 27-dimensional stream all three projections exist and are exact. Each is a $$9 \times 27$$ selector, with identity blocks on the slots it reads and zeros elsewhere:
+
+$$
+W_V = \big[\, I_9 \;\big\vert\; 0 \;\big\vert\; 0 \,\big], \qquad
+W_K = \big[\, 0 \;\big\vert\; I_9 \;\big\vert\; I_9 \,\big], \qquad
+W_Q = \big[\, I_9 \;\big\vert\; I_9 \;\big\vert\; 0 \,\big] .
+$$
+
+Written out in full:
+
+$$
+W_V =
+\left[\begin{array}{ccccccccc|ccccccccc|ccccccccc}
+1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+0&0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+0&0&0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0\\
+0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0
+\end{array}\right]
+$$
+
+$$
+W_K =
+\left[\begin{array}{ccccccccc|ccccccccc|ccccccccc}
+0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0\\
+0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0\\
+0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0\\
+0&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&1&0&0&0&0&0\\
+0&0&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&1&0&0&0&0\\
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&1&0&0&0\\
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&1&0&0\\
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&1&0\\
+0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0&0&0&0&0&0&1
+\end{array}\right]
+$$
+
+Block multiplication then recovers both matrices of §3.3:
+
+$$
+V = H\,W_V^\top =
+\big[\, X \;\big\vert\; X^{(-1)} \;\big\vert\; X^{(-2)} \,\big]
+\begin{bmatrix} I_9 \\ 0 \\ 0 \end{bmatrix} = X ,
+$$
+
+$$
+K = H\,W_K^\top =
+\big[\, X \;\big\vert\; X^{(-1)} \;\big\vert\; X^{(-2)} \,\big]
+\begin{bmatrix} 0 \\ I_9 \\ I_9 \end{bmatrix} = X^{(-1)} + X^{(-2)} ,
+$$
+
+and row $$i$$ of that sum is $$e(x_{i-1}) + e(x_{i-2}) = k_i$$, exactly the rule of §3.1. The query of §3.5 comes out the same way: $$q = W_Q\,\mathbf{h}_{13} = e(x_{13}) + e(x_{12})$$.
+
+For a single position, take $$i = 6$$, where $$x_6 = \texttt{woof}$$, $$x_5 = \texttt{->}$$ and $$x_4 = \texttt{dog}$$:
+
+$$
+\mathbf{h}_6 = \begin{bmatrix} e(\texttt{woof}) \\ e(\texttt{->}) \\ e(\texttt{dog}) \end{bmatrix} = \begin{bmatrix} \mathbf{e}_6 \\ \mathbf{e}_2 \\ \mathbf{e}_5 \end{bmatrix}
+$$
+
+$$
+\mathbf{h}_6^\top =
+\left[\begin{array}{ccccccccc|ccccccccc|ccccccccc}
+0&0&0&0&0&0&1&0&0&0&0&1&0&0&0&0&0&0&0&0&0&0&0&1&0&0&0
+\end{array}\right]
+$$
+
+$$
+W_K\,\mathbf{h}_6 = \mathbf{e}_2 + \mathbf{e}_5 = \begin{bmatrix}0&0&1&0&0&1&0&0&0\end{bmatrix}^\top = k_6,
+\qquad
+W_V\,\mathbf{h}_6 = \mathbf{e}_6 = \begin{bmatrix}0&0&0&0&0&0&1&0&0\end{bmatrix}^\top = v_6 .
+$$
+
+The division of labour is now explicit: $$W_K$$ reads only the two context slots, $$W_V$$ only the current-token slot, and $$W_Q$$ the current token together with its predecessor. These selectors are hand-set rather than learned. A trained model has to arrive at something functionally equivalent, spread across dense dimensions rather than clean blocks, and determined only up to the invertible transformations of §10.5.
+
+### 3.5 The query
 
 With $$t = 13$$, $$x_{12} = \texttt{dog}$$ and $$x_{13} = \texttt{->}$$:
 
@@ -187,7 +373,7 @@ $$
 q = e(\texttt{dog}) + e(\texttt{->}) = \mathbf{e}_5 + \mathbf{e}_2 = \begin{bmatrix}0&0&1&0&0&1&0&0&0\end{bmatrix}^\top
 $$
 
-### 3.5 Why a two-token window
+### 3.6 Why a two-token window
 
 $$\texttt{->}$$ occurs four times in the prompt, at positions $$1, 5, 9, 13$$. The three occurrences with a successor are followed by $$\texttt{meow}$$, $$\texttt{woof}$$, $$\texttt{moo}$$ respectively. A one-token window therefore cannot discriminate:
 
@@ -677,6 +863,7 @@ $$
 &\text{embed} && e(x) = \mathbf{e}_{\mathrm{id}(x)}, \quad X \in \mathbb{R}^{n \times |\mathcal{V}|}\\
 &\text{key} && k_i = e(x_{i-2}) + e(x_{i-1}), \quad K = \big[(P + P^2)\bar X\big]_{0:n}\\
 &\text{value} && v_i = e(x_i), \quad V = X\\
+&\text{weight form} && V = X\,W_V^\top,\ W_V = I_9; \quad K = H\,W_K^\top,\ W_K = \big[\,0 \mid I_9 \mid I_9\,\big]\\
 &\text{query} && q = e(x_{t-1}) + e(x_t)\\
 &\text{score} && s = \lambda\, q^\top K^\top, \quad \lambda = 4\\
 &\text{weights} && w_i = \mathrm{softmax}(s)_i = e^{s_i - m}\big/\textstyle\sum_j e^{s_j - m}\\
