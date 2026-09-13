@@ -1,0 +1,53 @@
+---
+---
+
+@use 'abstracts/variables' with (
+  $theme: '{{ site.theme_mode }}'
+);
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+/* append your custom style below */
+
+/* Light theme: pure white ground, near-black text.
+   Chirpy's light palette is close already; these tighten it to a
+   white/black reading surface and unify the border colour. */
+:root[data-bs-theme='light'] {
+  /* ground */
+  --main-bg: #ffffff;
+  --card-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --topbar-bg: rgb(255 255 255 / 92%);
+
+  /* type */
+  --text-color: #1a1a1a;
+  --heading-color: #000000;
+  --text-muted-color: #5c6370;
+  --post-list-text-color: #3a3a3a;
+  --label-color: #3a3a3a;
+  --sidebar-muted-color: #3a3a3a;
+  --sidebar-active-color: #000000;
+  --site-title-color: #1a1a1a;
+  --site-subtitle-color: #5c6370;
+
+  /* links */
+  --link-color: #0056b2;
+
+  /* borders and rules */
+  --main-border-color: #e1e4e8;
+  --sidebar-border-color: #e1e4e8;
+  --tb-border-color: #e1e4e8;
+  --btn-border-color: #e1e4e8;
+  --tag-border: #e1e4e8;
+  --search-border-color: #e1e4e8;
+  --dash-color: #d0d7de;
+
+  /* code */
+  --highlight-bg-color: #f6f8fa;
+  --language-border-color: #e1e4e8;
+}
