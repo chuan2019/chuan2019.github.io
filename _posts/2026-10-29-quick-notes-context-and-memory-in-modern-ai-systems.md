@@ -4,6 +4,7 @@ date: 2026-10-29 06:40:00 +0000
 categories: [Machine Learning, LLM]
 tags: [ai-agents, llm, context-engineering, ai-memory, software-architecture]
 description: "Model sees Context on each call, Memory persists between calls"
+mermaid: true
 ---
 
 *Model sees Context on each call, Memory persists between calls*
@@ -300,7 +301,23 @@ In Examples 1 and 2, the application decides what to remember. In this example, 
 
 In terms of the architecture, this is the agent loop in the reference diagram. The model emits `tool_use` blocks, the application executes them against a storage it controls, and returns `tool_result` blocks. Nothing is stored on the provider side. The sequence diagram below shows a typical session.
 
-![Sequence diagram of an agent session using the memory tool](https://miro.medium.com/v2/resize:fit:1400/1*oaS8yTn5IIURMqF_eDrMVA.png)
+```mermaid
+sequenceDiagram
+    participant App
+    participant Claude
+    participant Disk as /memories (your disk)
+    App->>Claude: task + tools=[memory]
+    Claude->>App: tool_use: view /memories
+    App->>Disk: list dir
+    Disk-->>App: projects/nightly-pipeline.md
+    App-->>Claude: tool_result
+    Claude->>App: tool_use: view projects/nightly-pipeline.md
+    App-->>Claude: tool_result (prior decisions)
+    Note over Claude: works on the task using recalled state
+    Claude->>App: tool_use: str_replace (record progress)
+    App->>Disk: write
+    Claude->>App: final answer
+```
 
 **Step 1. Implement the storage backend**
 
@@ -397,7 +414,14 @@ def run(task: str) -> str:
 
 The storage backend can be tested offline by feeding it the commands directly. The results are summarized below; the last two lines confirm the traversal and root-deletion guards work as expected.
 
-![Results of testing the storage backend](https://miro.medium.com/v2/resize:fit:1354/1*kelNaH-UN7DAmR0GjbwWlA.png)
+```text
+view /memories                              -> (empty)
+create /memories/project.md                 -> created
+str_replace "Open: retry on 429"            -> ok
+rename -> projects/nightly-pipeline.md      -> renamed
+view /memories/../../etc/passwd             -> error: path escapes memory dir
+delete /memories                            -> error: refusing to touch the memory root
+```
 
 A few things to notice from this example:
 
