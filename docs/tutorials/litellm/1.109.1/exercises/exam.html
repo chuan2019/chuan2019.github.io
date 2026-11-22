@@ -1,0 +1,1249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LiteLLM Practice Exam</title>
+<style>
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --surface-2: #eef1f5; --text: #1b1f24; --muted: #5b6573;
+  --border: #d5dbe3; --accent: #2f5bd3; --accent-text: #ffffff; --ok: #1f7a43; --ok-bg: #e5f4ea;
+  --bad: #b3261e; --bad-bg: #fbe9e7; --warn: #8a5a00; --warn-bg: #fff3d6; --code-bg: #eef1f5;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111418; --surface: #1a1e24; --surface-2: #232933; --text: #e6e9ee; --muted: #9aa4b2;
+    --border: #333b47; --accent: #7aa2ff; --accent-text: #0d1117; --ok: #6fd39a; --ok-bg: #16301f;
+    --bad: #ff8a80; --bad-bg: #3a1a18; --warn: #f2c35b; --warn-bg: #3a2e12; --code-bg: #232933;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111418; --surface: #1a1e24; --surface-2: #232933; --text: #e6e9ee; --muted: #9aa4b2;
+  --border: #333b47; --accent: #7aa2ff; --accent-text: #0d1117; --ok: #6fd39a; --ok-bg: #16301f;
+  --bad: #ff8a80; --bad-bg: #3a1a18; --warn: #f2c35b; --warn-bg: #3a2e12; --code-bg: #232933;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+h2 { font-size: 1.2rem; margin: 0 0 12px; }
+p { margin: 0 0 12px; }
+.muted { color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.spread { justify-content: space-between; }
+button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); padding: 8px 16px; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+button:focus-visible, input:focus-visible, label.opt:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 640px) { .modes { grid-template-columns: 1fr; } }
+.domains { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px 16px; margin: 8px 0 16px; }
+.domains label { display: flex; gap: 8px; align-items: baseline; font-size: .95rem; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .9em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; line-height: 1.45; margin: 0 0 14px; }
+pre code { background: none; padding: 0; }
+.qmeta { display: flex; gap: 8px; flex-wrap: wrap; font-size: .85rem; color: var(--muted); margin-bottom: 8px; }
+.tag { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 1px 10px; }
+.qtext { font-size: 1.05rem; font-weight: 600; margin-bottom: 12px; }
+.hint { font-size: .9rem; color: var(--muted); margin-bottom: 10px; }
+label.opt { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; background: var(--surface); }
+label.opt input { margin-top: 5px; flex: none; }
+label.opt.correct { border-color: var(--ok); background: var(--ok-bg); }
+label.opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.feedback { border-radius: 8px; padding: 12px 14px; margin: 12px 0; }
+.feedback.ok { background: var(--ok-bg); border: 1px solid var(--ok); }
+.feedback.bad { background: var(--bad-bg); border: 1px solid var(--bad); }
+.bar { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--accent); }
+.timer { font-variant-numeric: tabular-nums; font-weight: 600; }
+.timer.low { color: var(--bad); }
+.palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 6px; }
+.palette button { padding: 6px 0; font-size: .85rem; }
+.palette button.answered { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.palette button.current { outline: 2px solid var(--text); outline-offset: 1px; }
+.palette button.flagged { border-color: var(--warn); box-shadow: inset 0 -3px 0 var(--warn); }
+.score { font-size: 2.4rem; font-weight: 700; }
+.pass { color: var(--ok); } .fail { color: var(--bad); }
+table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+td, th { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dbar { width: 40%; }
+@media (max-width: 640px) { .dbar { display: none; } }
+.review-item { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; }
+.small { font-size: .88rem; }
+.theme-toggle { position: absolute; top: 16px; right: 16px; padding: 4px 10px; font-size: .85rem; }
+header { position: relative; padding-right: 90px; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header class="card" style="padding-bottom:14px">
+    <button class="theme-toggle" id="themeBtn" type="button" aria-label="Toggle colour theme">Theme</button>
+    <h1>LiteLLM Practice Exam</h1>
+    <p class="muted" style="margin:0">Certification-style questions on the LiteLLM SDK and proxy, written against LiteLLM 1.109.1 (the version the tutorial pins). Section numbers (§) point to <code>TUTORIAL.md</code>.</p>
+  </header>
+
+  <section id="home">
+    <div class="modes">
+      <div class="card">
+        <h2>Practice</h2>
+        <p class="muted">One question at a time with the answer and explanation straight away. Choose the domains to drill.</p>
+        <div class="row small"><button type="button" id="selAll">Select all</button><button type="button" id="selNone">Clear</button></div>
+        <div class="domains" id="domainBoxes"></div>
+        <button class="primary" type="button" id="startPractice">Start practice</button>
+      </div>
+      <div class="card">
+        <h2>Exam</h2>
+        <p class="muted"><span id="examN"></span> questions drawn evenly from all 22 domains. <span id="examMin"></span> minutes. Pass mark <span id="passPct"></span>%. Multi-select questions score only when every choice is right. No feedback until you submit.</p>
+        <p id="history" class="small"></p>
+        <button class="primary" type="button" id="startExam">Start exam</button>
+      </div>
+    </div>
+    <div class="card small muted" id="bankInfo"></div>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="card">
+      <div class="row spread" style="margin-bottom:10px">
+        <div id="progressText" class="small muted"></div>
+        <div class="row"><span id="timer" class="timer hidden"></span><button type="button" id="quitBtn">Quit</button></div>
+      </div>
+      <div class="bar"><span id="progressBar" style="width:0%"></span></div>
+    </div>
+    <div class="card" id="qcard">
+      <div class="qmeta"><span class="tag" id="qDomain"></span><span class="tag" id="qRef"></span></div>
+      <div class="qtext" id="qText"></div>
+      <div id="qCode"></div>
+      <div class="hint" id="qHint"></div>
+      <form id="qOpts" onsubmit="return false"></form>
+      <div id="qFeedback"></div>
+      <div class="row spread" style="margin-top:12px">
+        <div class="row"><button type="button" id="prevBtn">Previous</button><button type="button" id="flagBtn" class="hidden">Flag</button></div>
+        <div class="row"><button type="button" class="primary" id="checkBtn">Check</button><button type="button" class="primary" id="nextBtn">Next</button></div>
+      </div>
+    </div>
+    <div class="card hidden" id="paletteCard">
+      <div class="row spread" style="margin-bottom:10px"><strong>Questions</strong><button type="button" class="primary" id="submitBtn">Submit exam</button></div>
+      <div class="palette" id="palette"></div>
+      <p class="small muted" style="margin:10px 0 0">Filled: answered. Underlined: flagged. Keys: 1–5 choose, Enter checks or moves on.</p>
+    </div>
+  </section>
+
+  <section id="results" class="hidden">
+    <div class="card">
+      <div class="row spread">
+        <div><div class="score" id="scoreBig"></div><div id="scoreLine"></div></div>
+        <div class="row"><button type="button" id="homeBtn">Back to start</button><button type="button" class="primary" id="retryWrongBtn">Practise the ones I missed</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>By domain</h2>
+      <table id="domainTable"></table>
+    </div>
+    <div class="card">
+      <div class="row spread"><h2 style="margin:0">Review</h2><label class="small"><input type="checkbox" id="showAll"> show correct answers too</label></div>
+      <div id="review"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const EXAM_N = 50, EXAM_MIN = 75, PASS = 75, STORE = "litellm-exam-v1";
+
+const DOMAINS = [
+  "Core SDK and providers",
+  "Streaming and async",
+  "Structured output and tools",
+  "Errors, retries and fallbacks",
+  "Router and load balancing",
+  "Tokens, cost and budgets",
+  "Caching",
+  "Callbacks and observability",
+  "Parameters and compatibility",
+  "Proxy: configuration and routes",
+  "Proxy: keys, teams and spend",
+  "Testing and production practice",
+  "Smart routing",
+  "MCP gateway",
+  "Skills gateway",
+  "Agent gateway (A2A)",
+  "Prompt management",
+  "Observability integrations",
+  "Lens: agent run review",
+  "Access control, identity and secrets",
+  "Guardrails and production hardening",
+  "Context and memory management",
+];
+
+// d: domain index, a: correct option indices (more than one = multi-select), s: tutorial reference
+const Q = [
+// Section 12: Azure, Vertex AI, providers directly, and the Setup quick start
+{d:0,s:"§12 Azure",q:"A call to `azure/gpt4o-prod` succeeds but `response_cost` is `None`. Why, and what fixes it?",
+ o:["`gpt4o-prod` is a deployment name LiteLLM can't price; set `base_model: azure/gpt-4o`","Azure doesn't return token usage; switch to the v1 API","The API key lacks billing permission; use Entra ID","Costs are only computed on the proxy"],a:[0],
+ x:"An Azure OpenAI deployment has a name you choose, so LiteLLM can't tell which model runs behind it. `base_model` (SDK) or `model_info.base_model` (proxy) names it; the same call then cost $0.00009."},
+{d:0,s:"§12 Azure",q:"What differs between Azure OpenAI's classic API and its v1 API (`api_version: v1`) as LiteLLM sends them?",
+ o:["Classic puts the deployment in the path and needs `api-version`; v1 uses `/openai/v1/chat/completions` with no version and a Bearer key","v1 uses Anthropic's body format","Classic only works with Entra ID","v1 needs `base_model`, classic doesn't"],a:[0],
+ x:"Classic: `/openai/deployments/<name>/chat/completions?api-version=...` with an `api-key` header. v1: `/openai/v1/chat/completions`, deployment name as `model`, key as Bearer."},
+{d:0,s:"§12 Azure",q:"Which `azure_ai/` calls go to Microsoft Foundry's `/anthropic/v1/messages` route?",
+ o:["Claude models, with Anthropic's Messages body","Every Foundry model","Only models deployed with Entra ID","Llama and Mistral models"],a:[0],
+ x:"`azure_ai/` picks the route from the model name: Claude goes to `/anthropic/v1/messages`, other catalogue models to `/models/chat/completions` with an OpenAI body."},
+{d:0,s:"§12 Azure",q:"A proxy deployment sets `azure_ad_token: oidc/env/AZURE_FEDERATED_TOKEN`, `tenant_id` and `client_id`. Three calls are made. What reaches Entra ID?",
+ o:["One token request exchanging the federated token; the Entra ID token is cached for the other calls","Three token requests, one per call","Nothing: the federated token is sent to Azure OpenAI directly","A client secret"],a:[0],
+ x:"Workload identity federation: the federated token is exchanged once (client-assertion grant) and the resulting Entra ID token is cached until shortly before it expires. No Azure secret exists."},
+{d:3,s:"§12 Azure",q:"A Router has only `fallbacks: [{\"gpt\": [\"claude\"]}]`. Azure's content filter refuses a `gpt` request. What happens in LiteLLM 1.109.1?",
+ o:["The request is answered by `claude`: plain fallbacks also catch `ContentPolicyViolationError`","The client gets `ContentPolicyViolationError`; only `content_policy_fallbacks` handles it","The request is retried on `gpt` until it passes","The proxy returns 403"],a:[0],
+ x:"Without `content_policy_fallbacks`, the generic list applies to filter refusals too. `content_policy_fallbacks: [{\"gpt\": []}]` keeps the refusal; an empty top-level list doesn't."},
+{d:0,s:"§12 Vertex AI",q:"Which statements about `vertex_ai/` calls are true? Select all that apply.",
+ o:["Gemini gets `contents`/`parts` and `generationConfig.max_output_tokens`","Claude gets Anthropic's Messages body with `anthropic_version: vertex-2023-10-16` via `rawPredict`","The location is part of the URL, so one Google token serves every region","Each request is signed for its region, like SigV4","`gemini/` and `vertex_ai/` use the same credentials"],a:[0,1,2],
+ x:"A Google access token isn't tied to a region. `gemini/` is Google AI Studio with an API key; `vertex_ai/` uses Google Cloud credentials and a project."},
+{d:3,s:"§12 Vertex AI",q:"Vertex AI answers `403 PERMISSION_DENIED`. What does LiteLLM 1.109.1 raise?",
+ o:["`BadRequestError` with `status_code` 403","`PermissionDeniedError`","`AuthenticationError` with 401","`ServiceUnavailableError`"],a:[0],
+ x:"Unlike Bedrock's `AccessDeniedException` (→ `PermissionDeniedError`), Vertex's 403 surfaces as `BadRequestError` with status 403. Check `status_code`, not only the class."},
+{d:0,s:"§12 Vertex AI",q:"A proxy runs on EKS and calls Vertex AI. Which credential needs no Google secret at all?",
+ o:["A workload identity federation config (`type: external_account`) as `vertex_credentials`","A service-account key file","`GEMINI_API_KEY`","`gcloud auth application-default login` on the node"],a:[0],
+ x:"Federation exchanges the pod's own OIDC token at Google's Security Token Service. A service-account key is a long-lived secret."},
+{d:0,s:"§12 Providers",q:"Why prefer `ollama_chat/<model>` to `ollama/<model>`?",
+ o:["It uses Ollama's chat API, which keeps roles and supports tools; `ollama/` flattens the conversation into one prompt","It is faster because it skips tokenisation","Only `ollama_chat/` works with `api_base`","`ollama/` needs a GPU"],a:[0],
+ x:"`ollama/` calls `/api/generate`; the same question cost 44 prompt tokens there and 22 through `/api/chat`, and only the chat API returned a tool call."},
+{d:5,s:"§12 Providers",q:"A proxy serves `hosted_vllm/Qwen/Qwen2.5-7B-Instruct`. Virtual-key budgets never move for it. What fixes that?",
+ o:["Set `input_cost_per_token` and `output_cost_per_token` on the deployment","Set `base_model: openai/gpt-4o`","Enable `drop_params`","Switch to `openai/` as the prefix"],a:[0],
+ x:"LiteLLM's price table doesn't know a model you serve, so its cost is `None` (`0.0` for Ollama). Your own per-token figure makes the traffic count."},
+{d:9,s:"§12 Providers",q:"The proxy runs in Docker and Ollama runs in another container published on the host's port 11434. Why does `api_base: http://localhost:11434` fail?",
+ o:["Inside the proxy's container, `localhost` is that container; use a shared network and the container name, or `host.docker.internal`","Ollama only accepts HTTPS","The proxy image has no Ollama adapter","`localhost` must be written as `127.0.0.1`"],a:[0],
+ x:"Same cause as the Compose database gotcha. On a shared Docker network, `http://<ollama container>:11434` works."},
+{d:9,s:"Setup quick start",q:"In the quick start, the proxy runs from the official image and calls Bedrock with an SSO profile. What gives the container its AWS identity?",
+ o:["`~/.aws` mounted read-only and `AWS_PROFILE`/`AWS_REGION` passed with `-e`","AWS keys written in `quickstart.yaml`","The master key","An IAM role baked into the image"],a:[0],
+ x:"boto3 in the container finds the profile and the cached SSO session in the mounted `~/.aws`. The config holds no AWS secret."},
+// 0 Core SDK and providers
+{d:0,s:"§1",q:"In `completion(model=\"bedrock/us.anthropic.claude-haiku-5-5\", ...)`, what does the `bedrock/` part do?",
+ o:["It selects LiteLLM's Bedrock adapter; the rest is the model ID sent to Bedrock","It is part of the model ID that AWS receives","It selects the AWS region","It names a Router model group"],a:[0],
+ x:"The prefix picks the provider adapter. `get_llm_provider` splits it into provider `bedrock` and model `us.anthropic.claude-haiku-5-5`."},
+{d:0,s:"§1",q:"Which expression reads the reply text whichever provider answered?",
+ o:["`resp.choices[0].message.content`","`resp.content[0].text`","`resp.output_text`","`resp[\"completion\"]`"],a:[0],
+ x:"LiteLLM always returns an OpenAI chat-completion shape. `content[0].text` is the native Anthropic shape, which LiteLLM translates away."},
+{d:0,s:"Ex 1.2",q:"What does `litellm.get_llm_provider(\"gpt-4o-mini\")[:2]` return?",
+ o:["`(\"gpt-4o-mini\", \"openai\")`","`(\"openai/gpt-4o-mini\", None)`","It raises, because the string has no provider prefix","`(\"gpt-4o-mini\", \"azure\")`"],a:[0],
+ x:"A string without a prefix is matched against LiteLLM's bundled model list, and `gpt-4o-mini` is a known OpenAI model. An unknown name with no prefix would fail."},
+{d:0,s:"Ex 1.2",q:"What model ID does LiteLLM send for `hosted_vllm/meta-llama/Llama-3.1-8B-Instruct`?",
+ o:["`meta-llama/Llama-3.1-8B-Instruct`","`Llama-3.1-8B-Instruct`","`hosted_vllm/meta-llama/Llama-3.1-8B-Instruct`","`vllm:meta-llama/Llama-3.1-8B-Instruct`"],a:[0],
+ x:"Only the first path segment is the provider. Everything after it, including further slashes, is the provider's own model ID."},
+{d:0,s:"§1, §12",q:"Which of these give LiteLLM an Anthropic API key? Select all that apply.",
+ o:["Export `ANTHROPIC_API_KEY` in the environment","Pass `api_key=` on the `completion()` call","In a proxy config, `api_key: os.environ/ANTHROPIC_API_KEY`","Append it to the model string, as in `anthropic/claude-sonnet-5-5:sk-...`"],a:[0,1,2],
+ x:"LiteLLM reads each provider's standard env var, accepts per-call `api_key`/`api_base`, and the proxy resolves `os.environ/NAME` references. Keys never go in model strings."},
+{d:0,s:"§1",q:"Anthropic's native API takes the system prompt as a separate top-level field. With LiteLLM you should:",
+ o:["Send a `{\"role\": \"system\"}` message as you would for OpenAI; LiteLLM moves it","Pass `system=` as an extra keyword argument","Prepend the system text to the first user message yourself","Set `litellm.anthropic_system = True`"],a:[0],
+ x:"Translation goes both ways: you write OpenAI-format messages, and LiteLLM moves the system message into the field the provider wants."},
+{d:0,s:"What LiteLLM is",q:"Which of these is LiteLLM *not*?",
+ o:["A server that hosts and serves model weights","A translation layer from the OpenAI format to 100+ providers","A library that computes the cost of each call","An OpenAI-compatible gateway with virtual keys"],a:[0],
+ x:"LiteLLM is plumbing between your code and providers. To serve weights, use vLLM or Ollama, which LiteLLM can call."},
+{d:0,s:"Ex 1.2",q:"`litellm.validate_environment(\"anthropic/claude-sonnet-5-5\")` runs with no Anthropic key set. What happens?",
+ o:["It returns a dict with `keys_in_environment: False` and `missing_keys: [\"ANTHROPIC_API_KEY\"]`","It raises `AuthenticationError`","It makes a test call to Anthropic","It returns `True` because the model exists"],a:[0],
+ x:"It checks for the env vars the provider needs, without making a request. That makes it handy for a start-up check."},
+{d:0,s:"Setup",q:"Why does the tutorial set `LITELLM_LOCAL_MODEL_COST_MAP=True` before importing LiteLLM?",
+ o:["To use the bundled model and price table instead of fetching it from GitHub at import","To disable cost tracking","To store spend in a local file","To make the proxy run without a database"],a:[0],
+ x:"Without it, importing LiteLLM fetches the latest model map over the network, which is slow and fails offline. It must be set before the import."},
+
+{d:0,s:"§12 Bedrock",q:"Which are typical reasons to call Claude through AWS Bedrock rather than Anthropic's API directly? Select all that apply.",
+ o:["Billing on the existing AWS account and agreement","Authentication with IAM roles instead of a vendor API key","Traffic can stay on the AWS network through VPC endpoints","New Claude features always arrive on Bedrock first","Bedrock needs no region"],a:[0,1,2],
+ x:"Cloud platforms usually get new models and features after the vendor's own API, and every Bedrock call is regional."},
+{d:0,s:"§12 Bedrock",q:"What does the `us.` in `bedrock/us.anthropic.claude-haiku-5-5` mean?",
+ o:["A cross-region inference profile: Bedrock may run the request in any US region","The model only runs in us-east-1","It selects LiteLLM's US price table","It is part of LiteLLM's prefix, not of the Bedrock model ID"],a:[0],
+ x:"`eu.` and `apac.` work the same way, and `global.` spans commercial regions worldwide. In LiteLLM 1.109.1's price table the regional profiles cost 10% more than the base ID and `global.`."},
+{d:0,s:"§12 Bedrock",q:"With no `aws_*` parameters on the call or deployment, where does LiteLLM get AWS credentials for Bedrock?",
+ o:["boto3's default chain: environment, AWS_PROFILE, then the workload role (EKS Pod Identity, IRSA, ECS task role, EC2 instance profile)","It refuses to call Bedrock","From `OPENAI_API_KEY`","From the LiteLLM master key"],a:[0],
+ x:"That is the production default: give the proxy's pod or task a role and put no credential in the config. `aws_role_name` adds an assumed role on top."},
+{d:0,s:"§12 Bedrock",q:"What is the difference between `bedrock/<id>` and `bedrock/invoke/<id>` for a Claude model?",
+ o:["The first uses the Converse API (one body format for all models); the second uses Invoke with Anthropic's native Messages body","The first is synchronous, the second streams","The second is cheaper","There is none"],a:[0],
+ x:"In the fake Bedrock's log, Converse carried `system`, `inferenceConfig.maxTokens` and `toolConfig`; Invoke carried `max_tokens`, `tools` and `anthropic_version`."},
+{d:0,s:"§12 Bedrock",q:"A deployment uses an application-inference-profile ARN as its model. What must you add so spend tracking and budgets see its cost?",
+ o:["`base_model`, naming the underlying model","`aws_region_name`","`guardrailConfig`","Nothing; LiteLLM reads the price from the ARN"],a:[0],
+ x:"Without `base_model`, `response_cost` was `None` for the ARN call; with `base_model=\"anthropic.claude-haiku-5-5\"` it was priced normally."},
+{d:0,s:"§12 Bedrock",q:"A proxy alias has Bedrock deployments in us-west-2 and us-east-1, `num_retries: 1` and no `allowed_fails`. us-west-2 starts answering `ThrottlingException`. What happens?",
+ o:["The 429 puts us-west-2 in cooldown, the retry and later calls go to us-east-1, and clients see successes","Every call fails with 429 until throttling stops","LiteLLM switches the model ID to `global.`","The proxy restarts the deployment"],a:[0],
+ x:"In the run, us-west-2 was attempted once and all six calls succeeded. With `allowed_fails: 1` set, the older rule waits for more than one failure within `cooldown_time`, so the throttled region keeps being tried."},
+
+// 1 Streaming and async
+{d:1,s:"§2",q:"In a streaming response, where does each piece of new text arrive?",
+ o:["`chunk.choices[0].delta.content`","`chunk.choices[0].message.content`","`chunk.text`","`chunk.delta.text`"],a:[0],
+ x:"Every provider's stream (Anthropic SSE events, Gemini, Bedrock) arrives as OpenAI-style `delta` chunks."},
+{d:1,s:"§2",q:"What does `litellm.stream_chunk_builder(chunks, messages=messages)` do?",
+ o:["Rebuilds one normal response, with text, tool calls and usage, from the collected chunks","Splits a finished response into chunks","Re-sends the request with `stream=False`","Buffers the stream so it can be iterated twice"],a:[0],
+ x:"Keep your chunks while you display them, then rebuild a full response for logging, cost or the next conversation turn."},
+{d:1,s:"§2",q:"How do you get token usage from a streaming call?",
+ o:["Pass `stream_options={\"include_usage\": True}` and read it from the final chunk or the rebuilt response","Usage is never available when streaming","Call `completion_cost` on the first chunk","Set `litellm.stream_usage = True`"],a:[0],
+ x:"With `include_usage`, a final chunk carries usage. `stream_chunk_builder` puts it on the rebuilt response."},
+{d:1,s:"§2",q:"Why guard with `if chunk.choices and chunk.choices[0].delta.content:` when printing a stream?",
+ o:["Some chunks (such as the usage chunk) have empty `choices`, and some deltas have no content","Chunks are always empty until the stream finishes","It is only needed for OpenAI models","It rate-limits the printing"],a:[0],
+ x:"Without the guard you get `IndexError` on the usage chunk, or print `None` for role-only and tool-call deltas."},
+{d:1,s:"§3",q:"How does `acompletion` differ from `completion`?",
+ o:["It is the async version: same arguments, same response, awaited","It returns a different, async-only response type","It always streams","It runs the call in a background thread and returns a future"],a:[0],
+ x:"`acompletion` is the async twin of `completion`. The router has `router.acompletion` too."},
+{d:1,s:"§3",q:"Six calls each take 1 s. They run with `asyncio.gather`, each inside `async with asyncio.Semaphore(3)`. About how long does the batch take?",
+ code:"sem = asyncio.Semaphore(3)\nasync def one(i):\n    async with sem:\n        return await litellm.acompletion(..., mock_response=\"x\", mock_delay=1.0)\nawait asyncio.gather(*(one(i) for i in range(6)))",
+ o:["About 2 s","About 1 s","About 3 s","About 6 s"],a:[0],
+ x:"At most three run at once, so the batch finishes in two waves of about 1 s each. The tutorial measured 2.2 s."},
+{d:1,s:"§3",q:"What goes wrong with an unbounded `asyncio.gather` over 10,000 prompts?",
+ o:["All 10,000 requests fire at once and the provider answers with 429 rate-limit errors","Python refuses to create more than 1,000 tasks","LiteLLM queues them automatically, so nothing goes wrong","The calls run one at a time"],a:[0],
+ x:"Bound concurrency with a semaphore, or let a `Router` enforce `rpm`/`tpm` per deployment."},
+{d:1,s:"Ex 3.2",q:"What does `litellm.batch_completion(model=m, messages=[msgs_a, msgs_b, msgs_c])` return?",
+ o:["A list of three responses, one per message list","One response whose `choices` has three entries","A batch job ID to poll later","A generator of streaming chunks"],a:[0],
+ x:"`messages` is a list of conversations. LiteLLM runs them concurrently and returns one response each. Provider batch *jobs* are a separate API (`create_batch`)."},
+{d:1,s:"Ex 2.2",q:"Which statements about async streaming are true? Select all that apply.",
+ o:["You `await litellm.acompletion(..., stream=True)` to get the stream object","You iterate the stream with `async for`","You iterate it with a plain `for` loop","With `stream=True`, `acompletion` returns one complete `ModelResponse`"],a:[0,1],
+ x:"Await the call to get an async iterator, then consume it with `async for chunk in stream`."},
+
+// 2 Structured output and tools
+{d:2,s:"§4",q:"What can you pass as `response_format` to get structured output?",
+ o:["A Pydantic model class, or a JSON-schema dict","Only the string `\"json\"`","Only a Pydantic model instance","A regular expression"],a:[0],
+ x:"LiteLLM turns the class or schema into whatever mechanism the provider uses for structured output."},
+{d:2,s:"§4",q:"How do you check whether a model supports JSON-schema structured output?",
+ o:["`litellm.supports_response_schema(model=...)`","`litellm.supports_json(model=...)`","Call it and catch the error","`litellm.get_model_info(model)[\"json\"]`"],a:[0],
+ x:"Capability helpers read the bundled model map. `get_model_info` also carries `supports_response_schema`, `supports_function_calling` and `supports_vision`."},
+{d:2,s:"§4",q:"You pass `response_format=Invoice`. Why should you still call `Invoice.model_validate_json(...)` on the reply?",
+ o:["Support differs between models and replies can still be malformed; validation keeps bad data out","LiteLLM returns a string that only Pydantic can parse","Validation is what makes the provider enforce the schema","It isn't needed: LiteLLM guarantees schema-valid output"],a:[0],
+ x:"Always validate at the boundary. The tutorial's example shows Pydantic catching a reply with a wrong type and missing fields."},
+{d:2,s:"§5",q:"After running a tool, which message do you append?",
+ o:["`{\"role\": \"tool\", \"tool_call_id\": call.id, \"content\": json.dumps(result)}`","`{\"role\": \"function\", \"name\": call.function.name, \"content\": result}`","`{\"role\": \"user\", \"content\": json.dumps(result)}`","`{\"role\": \"assistant\", \"tool_result\": result}`"],a:[0],
+ x:"The `tool_call_id` links the result to the call. LiteLLM converts this to each provider's format, such as Anthropic's `tool_result` blocks."},
+{d:2,s:"§5",q:"An assistant message contains two `tool_calls`. What should your loop do?",
+ o:["Run both, append one tool message per call (each with its own `tool_call_id`), then call the model again","Run only the first; the model will ask again for the second","Combine both results into one tool message","Stop, because parallel tool calls aren't supported"],a:[0],
+ x:"Parallel tool calls are normal. Every call needs a matching tool message before the next request."},
+{d:2,s:"Ex 5.1",q:"How should your agent loop decide whether to run tools?",
+ o:["Check whether `msg.tool_calls` is non-empty","Check `finish_reason == \"tool_calls\"` only","Check whether `msg.content` is empty","Check the number of turns"],a:[0],
+ x:"Providers differ on `finish_reason`, and mocked tool calls report `\"stop\"`. The presence of `tool_calls` is the reliable signal."},
+{d:2,s:"Ex 5.2",q:"How do you force the model to call the `lookup_order` tool?",
+ o:["`tool_choice={\"type\": \"function\", \"function\": {\"name\": \"lookup_order\"}}`","`tools=[\"lookup_order\"]`","`tool_choice=\"required\"`, which forces that particular tool","`force_tool=\"lookup_order\"`"],a:[0],
+ x:"The OpenAI `tool_choice` object names one function. `\"required\"` forces *some* tool call, not a particular one."},
+{d:2,s:"§5",q:"Why does the tutorial's loop run inside `for turn in range(5)`?",
+ o:["So a confused model can't call tools forever","LiteLLM allows at most five tool calls","Providers reject conversations longer than five turns","To retry failed tool calls"],a:[0],
+ x:"Always cap an agent loop. An unbounded loop can burn money and time on a model that keeps calling tools."},
+{d:2,s:"Ex 5.2",q:"An agent has a `delete_customer` tool. Which safeguards are sound? Select all that apply.",
+ o:["The dispatcher checks your own state (for example a confirmation your code recorded) before running it","Errors and refusals go back to the model as tool results instead of crashing the loop","Trust a `\"confirmed\": true` argument when the model sends one","A system prompt saying \"never delete customers\" as the only guard"],a:[0,1],
+ x:"Tool arguments come from the model, so they can't authorize anything. Enforce policy in code that the model can't influence."},
+
+// 3 Errors, retries and fallbacks
+{d:3,s:"§6",q:"`litellm.ContextWindowExceededError` is a subclass of which exception?",
+ o:["`litellm.BadRequestError`","`litellm.RateLimitError`","`litellm.APIConnectionError`","`litellm.InternalServerError`"],a:[0],
+ x:"It's a 400-class error. So are `ContentPolicyViolationError` and `UnsupportedParamsError`."},
+{d:3,s:"§6",q:"A context-window error is raised inside this `try`. Which branch runs?",
+ code:"try:\n    litellm.completion(...)\nexcept litellm.BadRequestError:\n    fix_request()\nexcept litellm.ContextWindowExceededError:\n    trim_and_retry()",
+ o:["`fix_request()`","`trim_and_retry()`","Both, in order","Neither; the exception escapes"],a:[0],
+ x:"Python uses the first matching `except`, and the subclass matches `BadRequestError`. Put the more specific class first."},
+{d:3,s:"§6",q:"Which errors are usually worth retrying? Select all that apply.",
+ o:["`RateLimitError` (429)","`ServiceUnavailableError` (503)","`Timeout`","`AuthenticationError` (401)","`ContextWindowExceededError`"],a:[0,1,2],
+ x:"Retry what time can fix: 429, 500, 503 and timeouts. A bad key or an oversized prompt fails the same way every time."},
+{d:3,s:"§6, §13",q:"Which status-code pairing is correct?",
+ o:["`RateLimitError` → 429, `AuthenticationError` → 401","`RateLimitError` → 503, `AuthenticationError` → 403","`RateLimitError` → 400, `AuthenticationError` → 401","`RateLimitError` → 429, `AuthenticationError` → 400"],a:[0],
+ x:"Each exception carries `status_code`, along with `llm_provider` and `model`."},
+{d:3,s:"§6",q:"Existing code catches `openai.RateLimitError`. You switch the call to `litellm.completion` against Anthropic. What happens to the handler?",
+ o:["It still catches rate limits: LiteLLM's exceptions subclass the `openai` SDK's","It never fires; you must catch `anthropic.RateLimitError`","It fires for every error","It only works if `drop_params=True`"],a:[0],
+ x:"LiteLLM maps every provider's errors to OpenAI-style classes that inherit from the `openai` SDK exceptions."},
+{d:3,s:"Ex 6.2",q:"Every fallback has failed. Which `except` clause reliably catches whatever is raised?",
+ o:["`except openai.APIError`","`except litellm.APIError`","`except litellm.ServiceUnavailableError`, the class the primary raised","`except litellm.BudgetExceededError`"],a:[0],
+ x:"The fallback runner raises its own error (an `APIConnectionError` in 1.109.1), not the primary's. `openai.APIError` is the common base; `litellm.APIError` is a sibling class, not the base."},
+{d:3,s:"§6",q:"What does `completion(..., num_retries=3)` do?",
+ o:["Retries the same model up to 3 times on any error, immediately unless `retry_strategy=\"exponential_backoff_retry\"` is set","Tries 3 different fallback models","Sends 3 requests in parallel and keeps the fastest","Retries only when the reply fails `response_format`"],a:[0],
+ x:"Retries stay on the same model. In 1.109.1 they are not selective (401 and 400 are retried too) and the default strategy has no wait. `fallbacks` move to other models once retries are used up."},
+{d:3,s:"§6",q:"What can a `fallbacks` entry be?",
+ o:["A model string, or a dict that also overrides parameters such as `api_key`, `api_base` or `mock_response` for that model","Only a model string","Only a Router group name","A Python callable that returns a response"],a:[0],
+ x:"The dict form lets each fallback use its own credentials or endpoint."},
+{d:3,s:"Setup",q:"What does `mock_response=litellm.RateLimitError(\"slow down\", llm_provider=\"openai\", model=\"gpt-4o\")` do?",
+ o:["Raises that error as if the provider had returned it, so you can test error handling","Returns the text \"slow down\"","Applies a client-side rate limit","Logs a warning and calls the real provider"],a:[0],
+ x:"An exception instance as `mock_response` exercises your error paths without a provider."},
+
+// 4 Router
+{d:4,s:"§7",q:"In a `Router` `model_list`, what is `model_name`?",
+ o:["An alias naming a model group; each entry with that name is one deployment in the group","The provider's model ID","A unique ID for each entry","The name of the routing strategy"],a:[0],
+ x:"Callers ask for the alias (`\"fast\"`), and the router picks a deployment. The provider model goes in `litellm_params.model`."},
+{d:4,s:"Ex 7.1",q:"Two deployments in group `fast` have `weight: 3` and `weight: 1`, with `simple-shuffle`. Over many calls, about what share goes to the first?",
+ o:["75%","50%","100%, until it fails","25%"],a:[0],
+ x:"`simple-shuffle` picks at random in proportion to `weight` (or `rpm`). The exercise checks for 65–85% over 400 calls."},
+{d:4,s:"§7",q:"What is the Router's default `routing_strategy`?",
+ o:["`simple-shuffle`","`least-busy`","`latency-based-routing`","`round-robin`"],a:[0],
+ x:"The others must be set explicitly."},
+{d:4,s:"§7",q:"Which are valid `routing_strategy` values? Select all that apply.",
+ o:["`least-busy`","`latency-based-routing`","`cost-based-routing`","`usage-based-routing-v2`","`round-robin-strict`"],a:[0,1,2,3],
+ x:"There is no `round-robin-strict`. 1.109.1 also has `usage-based-routing` and `provider-budget-routing`."},
+{d:4,s:"§7, Ex 7.3",q:"What do `allowed_fails=1` and `cooldown_time=30` do together?",
+ o:["A deployment that fails more than once within 30 s is taken out of rotation for 30 s","Each request is retried once, 30 s apart","The router gives up after 30 s","Each deployment gets 30 requests per minute"],a:[0],
+ x:"Cooldown stops traffic to a broken deployment while healthy ones in the group keep serving."},
+{d:4,s:"§7",q:"What are `context_window_fallbacks` for?",
+ o:["Sending a prompt that is too long for a group to a group with a bigger context window","Trimming old messages automatically","Splitting a long prompt across deployments","Falling back when a provider blocks content"],a:[0],
+ x:"Example: `context_window_fallbacks=[{\"fast\": [\"smart\"]}]`. For blocked content there is `content_policy_fallbacks`."},
+{d:4,s:"§7",q:"Several app processes each run a `Router`. How do they share cooldowns and usage counts?",
+ o:["Give each Router the same Redis (`redis_host`/`redis_port`, or `redis_url`)","They share them automatically through the model map","Set `routing_strategy=\"shared\"`","They can't; run one process"],a:[0],
+ x:"Without shared state, each process tracks rpm/tpm and cooldowns separately."},
+{d:4,s:"§7",q:"Why did a `Router` crash with `TypeError: ServiceUnavailableError.__init__() missing 2 required positional arguments`?",
+ o:["`Router` deep-copies `model_list`, and an exception object inside it can't be copied","The exception needs a `status_code` argument","Routers don't support mocks","The model name was wrong"],a:[0],
+ x:"Keep `model_list` as plain data. To test fallbacks, pass `mock_testing_fallbacks=True` on the call instead."},
+{d:4,s:"Ex 7.1",q:"After `router.completion(...)`, how do you find which deployment answered?",
+ o:["`resp._hidden_params[\"model_id\"]`, which holds the deployment's `model_info.id`","`resp.model`, which always holds the alias","`router.last_deployment`","It isn't recorded"],a:[0],
+ x:"Give each deployment a `model_info: {id: ...}`, so `model_id` is readable. It works with live calls too."},
+{d:4,s:"Ex 7.2",q:"What does `enable_pre_call_checks=True` add to a Router?",
+ o:["Before routing, it filters out deployments that can't take the request, such as those whose context window is too small","It validates API keys at start-up","It runs a health check before every call","It checks budgets before every call"],a:[0],
+ x:"With a small `max_input_tokens` on one deployment, a long prompt skips it, and `context_window_fallbacks` can then take over."},
+
+// 5 Tokens, cost and budgets
+{d:5,s:"§8",q:"How accurate is `litellm.token_counter(model=..., messages=...)` for non-OpenAI models?",
+ o:["It's an estimate; the provider's count in `resp.usage` is authoritative","It's exact for every provider","It always returns 0 for non-OpenAI models","It calls the provider's token-count API"],a:[0],
+ x:"Use it for pre-flight checks, such as whether a prompt fits the context window, and bill from `usage`."},
+{d:5,s:"§8",q:"What does `litellm.get_model_info(model)` return?",
+ o:["Context size, per-token prices and capability flags such as `supports_vision`","The provider's live status page","The model's weights and architecture","Your account's remaining quota"],a:[0],
+ x:"It reads the bundled model map. For a model that isn't in it, register one with `register_model`."},
+{d:5,s:"§8",q:"How do you make `completion_cost` work for a private fine-tuned model?",
+ o:["`litellm.register_model({\"<model>\": {\"input_cost_per_token\": ..., \"output_cost_per_token\": ..., \"litellm_provider\": ..., \"mode\": \"chat\"}})`","Pass `price=` on every call","Edit the provider's billing settings","It can't be done; custom models are always free"],a:[0],
+ x:"Registered entries feed `completion_cost`, `cost_per_token` and `get_model_info`."},
+{d:5,s:"§8",q:"In the LiteLLM version the tutorial pins, why doesn't `litellm.max_budget` stop spending?",
+ o:["Its spend counter only counts results that are plain dicts, and a chat completion response isn't one","It only works with the proxy","It needs Redis","It resets after every call"],a:[0],
+ x:"`litellm._current_cost` stayed at 0. Use your own guard or the proxy's key budgets."},
+{d:5,s:"§8",q:"A budget guard checks `spent >= limit` before each call and adds the cost after it. Calls run one at a time. By how much can spend exceed the limit?",
+ o:["Up to one call's cost","Not at all","Up to the limit again","By the cost of every call made so far"],a:[0],
+ x:"A call's cost is known only after it finishes, so the call that crosses the limit is already paid for. The proxy behaves the same way."},
+{d:5,s:"Ex 8.2",q:"The same guard is shared by 8 threads, with a lock around the counter. What is the worst-case overshoot?",
+ o:["About 8 calls' cost","One call's cost, because the lock prevents more","Zero","Unbounded"],a:[0],
+ x:"The lock protects the counter, but each in-flight call has already passed the check. Overshoot grows with concurrency."},
+{d:5,s:"§8",q:"What does `litellm.cost_per_token(model=m, prompt_tokens=1_000_000, completion_tokens=1_000_000)` return?",
+ o:["A tuple: (prompt cost in USD, completion cost in USD)","The total cost as one float","The price per token as a string","A dict keyed by provider"],a:[0],
+ x:"It applies the model's tiered rates, so a 1M-token prompt can be priced above the base rate (Haiku 5.5 costs five times as much above 100k prompt tokens). Read base prices from `get_model_info`."},
+{d:5,s:"§8",q:"How current are LiteLLM's built-in prices?",
+ o:["As current as the model map in your installed version (or the fetched copy); upgrade or register prices to change them","Fetched live from every provider on each call","Updated by the provider's invoice","Always zero for models released after install"],a:[0],
+ x:"Prices change. Treat computed costs as estimates and reconcile with provider billing."},
+{d:5,s:"§1",q:"Mocked calls report 10 prompt and 20 completion tokens. Two models show different costs for the same mocked call. Why?",
+ o:["Cost is tokens × each model's own per-token price","The mocks differ by model","Cost includes network latency","LiteLLM adds a random margin"],a:[0],
+ x:"With token counts fixed, the price table is the only difference."},
+
+// 6 Caching
+{d:6,s:"§9",q:"How do you turn on an in-memory response cache for the SDK?",
+ o:["`litellm.cache = Cache(type=\"local\")`, then `caching=True` on calls","`litellm.enable_cache()`","`completion(..., cache=\"memory\")` with no other setup","Set `LITELLM_CACHE=1`"],a:[0],
+ x:"`Cache` comes from `litellm.caching.caching`. `type=\"redis\"` shares it across processes."},
+{d:6,s:"§9",q:"How do you tell that a response came from the cache?",
+ o:["`resp._hidden_params.get(\"cache_hit\")` is `True`","`resp.cached` is `True`","`resp.usage.total_tokens == 0`","The response ID starts with `cache-`"],a:[0],
+ x:"A hit also returns the same response ID as the original call."},
+{d:6,s:"Ex 9.1",q:"Which per-call option skips *reading* from the cache, so the call goes to the provider?",
+ o:["`cache={\"no-cache\": True}`","`cache={\"no-store\": True}`","`caching=False` on the next call","`cache={\"ttl\": 0}`"],a:[0],
+ x:"`no-cache` bypasses lookup. `no-store` stops *writing* this response to the cache."},
+{d:6,s:"Ex 9.1",q:"You call once with `cache={\"no-store\": True}`, then repeat the identical call normally. What is the second call?",
+ o:["A miss, because the first response was never stored","A hit","An error","A hit only with Redis"],a:[0],
+ x:"`no-store` keeps that response out of the cache. The second call is the first to store one."},
+{d:6,s:"§9",q:"Which change makes an otherwise identical call a cache miss?",
+ o:["A different `max_tokens`","Running it a second later","A different `metadata` tag","Re-importing LiteLLM in another module of the same process"],a:[0],
+ x:"The key covers the model, the messages and the request parameters."},
+{d:6,s:"§9",q:"How does LiteLLM's response cache differ from provider prompt caching?",
+ o:["The response cache returns a stored answer with no provider call; prompt caching discounts a repeated prompt prefix but still generates a fresh answer","They are the same thing","Prompt caching is LiteLLM's name for the Redis backend","The response cache only stores system prompts"],a:[0],
+ x:"Prompt caching (Anthropic, OpenAI and others) happens on the provider side and is billed at a discount. The response cache skips the provider entirely."},
+{d:6,s:"§9",q:"Which backend shares cached responses across many pods?",
+ o:["`redis`","`local`","`disk`","`memory`"],a:[0],
+ x:"`local` is per process, and the old `disk` backend has been removed. S3, GCS and Azure Blob suit long-term storage."},
+{d:6,s:"Ex 9.2",q:"For a cache-hit response, what do `litellm.completion_cost(resp)` and `resp._hidden_params[\"response_cost\"]` return?",
+ o:["`completion_cost` re-prices it at full cost; `_hidden_params[\"response_cost\"]` is `0.0`","Both return 0.0","Both return the full cost","`completion_cost` raises an error"],a:[0],
+ x:"`completion_cost` works from token counts and doesn't know the reply was cached. For what you actually paid, use the logged `response_cost`."},
+{d:6,s:"§9",q:"Which `Cache(type=...)` values can match *similar* prompts, not only identical ones? Select all that apply.",
+ o:["`redis-semantic`","`qdrant-semantic`","`local`","`s3`"],a:[0,1],
+ x:"Semantic caches compare embeddings. 1.109.1 also has `valkey-semantic`."},
+
+// 7 Callbacks and observability
+{d:7,s:"§10",q:"Which `CustomLogger` method runs after each successful synchronous call?",
+ o:["`log_success_event(self, kwargs, response_obj, start_time, end_time)`","`on_success(self, response)`","`after_call(self, kwargs)`","`log_event(self, event)`"],a:[0],
+ x:"Failures go to `log_failure_event`. The async versions are `async_log_success_event` and `async_log_failure_event`."},
+{d:7,s:"Gotchas",q:"A logger defines `def log_success_event(self, k, resp, t0, t1)`. What happens?",
+ o:["It never runs, and no error is shown, because LiteLLM passes the arguments by keyword","It works; parameter names don't matter","It raises `TypeError` in your code at the call site","It runs once and then is removed"],a:[0],
+ x:"LiteLLM calls hooks as `kwargs=..., response_obj=..., start_time=..., end_time=...`. Sync hooks run in the background, so the `TypeError` is swallowed."},
+{d:7,s:"§10",q:"How do you attach an owner tag that every callback can see?",
+ o:["`completion(..., metadata={\"tags\": [\"search\"]})`","`completion(..., tags=\"search\")` only","Set a global `litellm.tag`","Put it in the system prompt"],a:[0],
+ x:"Tags appear in `standard_logging_object[\"request_tags\"]` and in the proxy's spend logs."},
+{d:7,s:"§10",q:"How do you send LiteLLM's logs to Langfuse without writing a logger class?",
+ o:["`litellm.callbacks = [\"langfuse\"]`, configured through Langfuse's env vars","`litellm.langfuse = True`","Wrap every call in a Langfuse decorator","Use the proxy only; the SDK can't do this"],a:[0],
+ x:"Built-in integrations are named by string: `\"otel\"`, `\"datadog\"`, `\"s3_v2\"`, `\"prometheus\"` and more."},
+{d:7,s:"Ex 10.1",q:"What is `kwargs[\"standard_logging_object\"]` in a callback?",
+ o:["A standard payload with the cost, tokens, status, model, model group, deployment ID, cache hit and tags","The raw HTTP request","A copy of the provider's own SDK response","A logger configuration object"],a:[0],
+ x:"Reading from it is simpler and more stable than digging through raw `kwargs`."},
+{d:7,s:"Ex 10.2",q:"How do you keep prompt and response text out of every logging integration?",
+ o:["`litellm.turn_off_message_logging = True`","`litellm.callbacks = []`","`litellm.suppress_debug_info = True`","`drop_params=True`"],a:[0],
+ x:"Metadata such as cost and tokens is still logged; message content is redacted. `suppress_debug_info` only hides the feedback banner."},
+{d:7,s:"Gotchas",q:"How do you turn on LiteLLM's debug logs?",
+ o:["Set `LITELLM_LOG=DEBUG` in the environment","`litellm.set_verbose = True` is the current way","`litellm.debug()`","Pass `debug=True` to every call"],a:[0],
+ x:"`set_verbose` still exists but is deprecated in favour of `LITELLM_LOG`. For the proxy, use `--detailed_debug`."},
+{d:7,s:"§10",q:"Your app is async and uses `acompletion`. Which logger methods should you override?",
+ o:["`async_log_success_event` and `async_log_failure_event`","Only `log_success_event`","`__await__`","`on_async_event`"],a:[0],
+ x:"Async hooks run on the event loop, without a background thread."},
+
+// 8 Parameters and compatibility
+{d:8,s:"§11",q:"You pass `temperature=0` to a model that only accepts `temperature=1`, without `drop_params`. What happens?",
+ o:["LiteLLM raises `UnsupportedParamsError`","LiteLLM silently changes it to 1","The provider ignores it","LiteLLM retries without it"],a:[0],
+ x:"By default LiteLLM refuses rather than guessing, so you find out your setting wasn't applied."},
+{d:8,s:"§11",q:"What does `drop_params=True` do, and what is the risk?",
+ o:["It silently removes parameters the model can't take, so some models run under settings other than the ones you asked for","It removes every optional parameter","It drops failed requests","It removes unknown fields from the response"],a:[0],
+ x:"Convenient for a multi-model sweep, but your comparison may no longer be like for like."},
+{d:8,s:"§11",q:"Where does the tutorial recommend setting `drop_params`?",
+ o:["Per call, where you need it: `completion(..., drop_params=True)`","Globally at import, always","Only in the proxy","Nowhere; it has been removed"],a:[0],
+ x:"A global setting hides the problem for every call in the process."},
+{d:8,s:"Ex 11.2",q:"`get_supported_openai_params(model=FAST)` includes `\"temperature\"`, yet `temperature=0` raises. Why?",
+ o:["The function lists parameter names, not allowed values; this model only accepts `temperature=1`","The list is out of date","Bedrock never supports temperature","`temperature` must be a string"],a:[0],
+ x:"Value restrictions are only caught when the request is mapped."},
+{d:8,s:"§1",q:"Which is true of the parameters you send through LiteLLM?",
+ o:["You use OpenAI parameter names, and LiteLLM maps them to each provider's equivalents","You must use each provider's native parameter names","Only `model` and `messages` are passed through","Parameters are forwarded unchanged with no mapping"],a:[0],
+ x:"For example, `max_tokens` maps to each provider's limit field, and `stop` to its stop sequences."},
+{d:8,s:"Reference",q:"What does `litellm.modify_params = True` allow?",
+ o:["LiteLLM changes the request to meet a provider's rules, for example fixing message order or adding placeholder content","LiteLLM rewrites your prompt to improve quality","Parameters can be changed after a response arrives","The proxy may edit keys"],a:[0],
+ x:"Some providers reject message sequences that OpenAI accepts. With `modify_params`, LiteLLM fixes them instead of failing."},
+{d:8,s:"Reference",q:"How do you send an extra HTTP header to the provider on one call?",
+ o:["`completion(..., extra_headers={\"X-Trace\": \"abc\"})`","`completion(..., headers=\"X-Trace: abc\")`","Add it to `metadata`","Set it on the `messages` list"],a:[0],
+ x:"`extra_headers` is part of the `completion` signature and is forwarded to the provider."},
+{d:8,s:"Reference",q:"Which is true of `reasoning_effort=\"low\"`?",
+ o:["It is an OpenAI-format parameter that LiteLLM maps to each reasoning-capable provider's own setting; check `supports_reasoning(model)`","Only OpenAI models accept it","It sets the temperature","It caps the number of tool calls"],a:[0],
+ x:"Bedrock Claude, for example, lists both `reasoning_effort` and its native `thinking` as supported."},
+
+// 9 Proxy: configuration and routes
+{d:9,s:"§12",q:"In a proxy config, what does `api_key: os.environ/ANTHROPIC_API_KEY` mean?",
+ o:["Read the value from that environment variable when the proxy loads the config","Use the literal string `os.environ/ANTHROPIC_API_KEY`","Ask the client for the key","Look the key up in the database"],a:[0],
+ x:"No secret is written in the file."},
+{d:9,s:"§12",q:"The proxy config's `model_list` and `router_settings` correspond to:",
+ o:["A `Router`'s `model_list` and its keyword arguments (`num_retries`, `fallbacks`, ...)","Two different, unrelated formats","OpenAI's model catalogue","The database schema"],a:[0],
+ x:"The proxy runs a Router inside it, configured from these sections."},
+{d:9,s:"§12",q:"Which config section holds `master_key`?",
+ o:["`general_settings`","`litellm_settings`","`router_settings`","`model_list`"],a:[0],
+ x:"`general_settings` holds proxy server settings such as `master_key` and `database_url`. `litellm_settings` sets SDK globals such as `drop_params`, callbacks and cache."},
+{d:9,s:"§12",q:"Which config section sets `drop_params: true` for every request through the proxy?",
+ o:["`litellm_settings`","`general_settings`","`router_settings`","`environment_variables`"],a:[0],
+ x:"`litellm_settings` keys map onto `litellm.<setting>` module globals."},
+{d:9,s:"§12",q:"A request to alias `chat-broken` was answered by `chat-cheap` after a fallback. Which response headers show this?",
+ o:["`x-litellm-model-group: chat-cheap` and `x-litellm-attempted-fallbacks: 1`","`x-fallback: true`","`x-litellm-model: chat-broken`","`retry-after`"],a:[0],
+ x:"`x-litellm-response-cost` gives the call's cost. Read headers through `with_raw_response` in the OpenAI SDK."},
+{d:9,s:"§12",q:"What must an existing OpenAI-SDK app change to use the proxy?",
+ o:["`base_url` to the proxy, `api_key` to a proxy (virtual) key, and `model` to a proxy alias","Replace the `openai` package with `litellm`","Nothing; the proxy intercepts traffic","Switch to the Anthropic SDK"],a:[0],
+ x:"`examples/proxy/client.py` has no LiteLLM import at all."},
+{d:9,s:"§12",q:"Which endpoint is a liveness probe that needs no key?",
+ o:["`/health/liveliness`","`/health` (it checks every model, using a key)","`/key/info`","`/v1/models`"],a:[0],
+ x:"It returns \"I'm alive!\". `/health/readiness` also reports the database connection; `/health` makes test calls to models."},
+{d:9,s:"Ex 12.2",q:"An app uses the Anthropic SDK. How can it go through the proxy to a Bedrock model?",
+ o:["Call the proxy's Anthropic-format `/v1/messages` route with a proxy key and an alias","It can't; the proxy only speaks the OpenAI format","Use `/bedrock/...` with the Anthropic SDK","Set `anthropic_compat: true` on the model"],a:[0],
+ x:"The proxy serves provider-native formats too. The reply has Anthropic's shape (`type: \"message\"`, `content[0].text`)."},
+{d:9,s:"Reference",q:"What do routes such as `/bedrock/{endpoint}` and `/vertex_ai/{endpoint}` do?",
+ o:["Pass a provider-native request through to that provider, adding proxy auth and spend tracking","Convert the request to OpenAI format","List that provider's models","Serve the admin UI"],a:[0],
+ x:"Pass-through routes let native-SDK clients use provider features that LiteLLM doesn't translate."},
+{d:20,s:"§21a",q:"Which are valid guardrail `mode` values in a proxy config? Select all that apply.",
+ o:["`pre_call`","`post_call`","`during_call`","`on_stream_end`","`pre_auth`"],a:[0,1,2],
+ x:"`pre_call` checks input before the model, `during_call` runs alongside it, and `post_call` checks the output. There is also `logging_only`, plus MCP variants."},
+
+// 10 Proxy: keys, teams and spend
+{d:10,s:"§12, §13",q:"What do virtual keys need that a plain proxy doesn't?",
+ o:["A database (Postgres) connected through `DATABASE_URL`","Redis","An OpenAI account","The admin UI"],a:[0],
+ x:"Without a database only the master key works, and a wrong key returned \"No connected db\" with status 400, not 401."},
+{d:10,s:"§13",q:"Match the refusals the tutorial observed: model not on the key's list, budget exceeded, rate limit hit, unknown key.",
+ o:["403, 422, 429, 401","401, 402, 429, 404","403, 429, 422, 401","400, 400, 429, 401"],a:[0],
+ x:"Clients can tell \"not allowed\", \"out of money\", \"slow down\" and \"who are you?\" apart."},
+{d:10,s:"§13",q:"Right after some calls, `/key/info` shows `spend: 0.0`, but the proxy is already refusing the key for budget. Why?",
+ o:["Enforcement uses an in-memory counter; spend is written to Postgres in batches every `PROXY_BATCH_WRITE_AT` seconds (default 10)","The calls were free","`/key/info` only shows yesterday's spend","Budgets are enforced by the provider"],a:[0],
+ x:"Don't write a test that checks `/key/info` immediately. Wait for the batch write, or trust the refusal."},
+{d:10,s:"§13",q:"A key has `max_budget: 0.00003`, and each call costs $0.0000132. Which call is refused first?",
+ o:["The 4th","The 3rd","The 2nd","None; budgets apply per day"],a:[0],
+ x:"After 2 calls spend is $0.0000264 (under the limit), so call 3 runs and brings it to $0.0000396. Call 4 is refused. The budget overshoots by one call."},
+{d:10,s:"Reference",q:"What does `budget_duration: \"30d\"` on `/key/generate` do?",
+ o:["Resets the key's spend every 30 days, so `max_budget` becomes a recurring budget","Expires the key after 30 days","Keeps spend logs for 30 days","Limits the key to 30 requests a day"],a:[0],
+ x:"Expiring a key is `duration`. Request limits are `rpm_limit`/`tpm_limit`."},
+{d:10,s:"Ex 13.2",q:"A team has `max_budget` and two keys. Key A spends the whole budget. What happens to key B?",
+ o:["It is refused too, because the budget belongs to the team","It keeps working until it has spent its own share","It works, because team budgets are advisory","Key A is deleted"],a:[0],
+ x:"Budgets can be set on keys, users, teams and customers. A team budget covers every key in the team."},
+{d:10,s:"Ex 13.2",q:"How does the proxy tell which end user (customer) a request is for, to apply that customer's budget?",
+ o:["The `user` field in the request body, matched to a customer created with `/customer/new`","The client's IP address","A `x-customer` header that is always required","The key alias"],a:[0],
+ x:"This lets one app key serve many end users, each with their own budget."},
+{d:10,s:"§13",q:"Re-running a script that calls `/key/generate` with `key_alias: \"demo-app\"` fails with 400. Why?",
+ o:["Key aliases must be unique","The master key expired","Aliases can't contain dashes","Only one key per model is allowed"],a:[0],
+ x:"The demo script adds a timestamp to the alias."},
+{d:10,s:"Ex 13.1",q:"Which request lets an existing key also use the `smart` alias?",
+ o:["`POST /key/update` with `{\"key\": \"sk-...\", \"models\": [\"fast\", \"smart\"]}`, using the master key","`POST /key/generate` again with the same key","Edit the config and restart","`POST /model/new`"],a:[0],
+ x:"Admin endpoints are authenticated with the master key (or an admin key)."},
+{d:10,s:"§13",q:"In `docker-compose.yml`, the proxy's `DATABASE_URL` points at `localhost:55432`, which works with `uv run litellm`. What happens in the container?",
+ o:["The proxy exits with `P1001: Can't reach database server`, because `localhost` is the proxy container itself; use the service name `db` and port 5432","It works, because Compose forwards `localhost` to the host","It works, but only after Postgres has started","The proxy starts without a database and only the master key works"],a:[0],
+ x:"Containers on a Compose network reach each other by service name on the internal port. 55432 is only the port published to the host."},
+{d:10,s:"§13",q:"Which step from the `uv` setup does the official `ghcr.io/berriai/litellm` image make unnecessary?",
+ o:["`prisma generate` and installing `litellm[extra_proxy]`: the image includes the Prisma toolchain and applies migrations on start","Setting `LITELLM_MASTER_KEY`","Running Postgres","Writing `config.yaml`"],a:[0],
+ x:"You still need a database, a master key and a config. The image passes its arguments to the `litellm` CLI, so `--config /app/config.yaml` works as before."},
+{d:10,s:"§13",q:"A key was created against the Compose stack. Which commands leave it working afterwards? Select all that apply.",
+ o:["`docker compose restart proxy`","`docker compose down`, then `docker compose up -d`","`docker compose down -v`, then `docker compose up -d`"],a:[0,1],
+ x:"Keys are rows in Postgres, stored in the `pgdata` volume. Only `-v` deletes the volume and every key with it."},
+{d:10,s:"§13",q:"You edit the mounted `config.yaml` and run `docker compose up -d`. The proxy still uses the old config. Why?",
+ o:["Compose recreates a container when its settings change, not when a mounted file changes; run `docker compose restart proxy`","Mounted files are copied once, at image build time","The proxy caches its config in Postgres","`:ro` mounts are never updated"],a:[0],
+ x:"The container sees the new file at once, but the proxy reads its config only at startup."},
+
+// 11 Testing and production practice
+{d:11,s:"Setup",q:"Which steps still run when you pass `mock_response`? Select all that apply.",
+ o:["Parameter mapping","Usage and cost calculation","Callbacks, caching and the router","The HTTP call to the provider"],a:[0,1,2],
+ x:"Only the HTTP call is skipped, which makes mocks useful in your own unit tests."},
+{d:11,s:"§9",q:"You time cache hits for a mocked call that has `mock_delay=1.0`. What do you see?",
+ o:["The first hit in the process takes about half a second of one-off setup; later hits take under a millisecond","Every hit takes over a second: `mock_delay` sleeps on a hit","Every hit takes exactly as long as the miss","It raises an error"],a:[0],
+ x:"A hit never reaches the mock, so `mock_delay` does not apply. Time the third call when you measure a cache speed-up."},
+{d:11,s:"Where to think twice",q:"Why pin LiteLLM to an exact version?",
+ o:["It releases very often, and translations or defaults can change between versions","It has no versioning","Newer versions need a licence","Only the pinned version supports Python 3.12"],a:[0],
+ x:"Pin it, and re-test when you upgrade."},
+{d:11,s:"Where to think twice",q:"When is calling the provider's native SDK a better choice than LiteLLM?",
+ o:["You use one provider and depend on its newest features, such as beta tools or new content blocks","You use more than one provider","You need retries and fallbacks","You want cost tracking"],a:[0],
+ x:"LiteLLM's translation can lag behind the provider. Native SDKs get features first."},
+{d:11,s:"Where to think twice",q:"What is the main security concern with running the proxy?",
+ o:["It holds every provider key, so it is a high-value target that must be patched, monitored and kept available","It stores prompts in plain text by default","It requires public internet access","It disables TLS"],a:[0],
+ x:"Teams get revocable virtual keys, but the proxy itself must be protected well."},
+{d:11,s:"§20",q:"What does `litellm.embedding(model=..., input=[\"a\", \"b\"])` return?",
+ o:["An OpenAI-shaped embedding response, with one vector per input in `data`","A NumPy array","A list of token IDs","A chat completion"],a:[0],
+ x:"Read vectors with `resp.data[i][\"embedding\"]` (or `.embedding`). Offline, the mock returns one vector whatever the input."},
+{d:11,s:"Gotchas",q:"How do you remove the \"Give Feedback / Get Help\" banner LiteLLM prints on errors?",
+ o:["`litellm.suppress_debug_info = True`","`litellm.drop_params = True`","`LITELLM_LOG=ERROR`","Catch every exception"],a:[0],
+ x:"Expected fallback tracebacks are noise of a different kind: lower the level of the `LiteLLM` and `LiteLLM Router` loggers."},
+{d:11,s:"Exercises README",q:"Where should credentials for a Bedrock call come from in these exercises?",
+ o:["An AWS profile signed in with `aws sso login` (temporary credentials through the AWS credential chain)","`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` in `.env.local`","`api_key=` in each call","Hard-coded in `_env.py`"],a:[0],
+ x:"`_env.py` refuses to load if `.env.local` contains long-lived access keys."},
+{d:11,s:"Ex 1.3",q:"Why should a multi-turn chat check `prompt_tokens` growth only with `LIVE=1`?",
+ o:["A mocked non-streaming reply always reports 10 prompt tokens, whatever the history","Mocks don't return usage","Token counts are random offline","The history is discarded offline"],a:[0],
+ x:"Fixed mock usage makes cost and shape demos deterministic, but it hides real token growth."},
+// 12 Smart routing
+{d:12,s:"§14",q:"Which statements are true of all four smart routers (complexity, semantic, quality, adaptive) in LiteLLM 1.109.1?",
+ o:["Each is a model entry whose `litellm_params.model` starts with `auto_router/`","The synchronous `router.completion()` cannot use them; `await router.acompletion()` can","Each needs a Postgres database","Each needs an enterprise licence"],a:[0,1],
+ x:"Callers use the router entry's `model_name` as an alias. Pre-routing strategies only run on the async path, so sync calls fail with a \"strategy router marker\" error. Only the proxy's adaptive persistence uses Postgres, and only some complexity-router options are licensed."},
+{d:12,s:"§14a",q:"With default settings, how does the complexity router decide a request's tier?",
+ o:["It scores the last user message locally on weighted keyword and length dimensions and cuts the score at tier boundaries","It asks an LLM to classify the request","It compares the prompt's embedding with example phrases","It samples from a bandit that learns from user feedback"],a:[0],
+ x:"The default `heuristic` classifier makes no model call and takes under a millisecond. `classifier_type: \"llm\"` is the LLM option; embeddings are the semantic router; the bandit is the adaptive router."},
+{d:12,s:"Ex 14a.2",q:"A caller sends `max_tokens=50` to a complexity-router alias with default settings. What `max_tokens` reaches the provider?",
+ o:["The chosen tier model's maximum output tokens","50","None; the parameter is dropped","50, unless the tier model's maximum is lower"],a:[0],
+ x:"`max_tokens_from_tier_model` defaults to true and replaces the caller's value. `\"clamp\"` keeps a smaller caller value (the last option describes clamp), and `false` forwards it unchanged."},
+{d:12,s:"Ex 14a.1",q:"With default settings, which prompt does the complexity router send to REASONING?",
+ o:["\"Compare and contrast Raft and Paxos. Think step by step and explain your reasoning.\"","\"Think step by step and prove that the square root of 2 is irrational.\"","\"Write a Python function that merges two sorted lists.\"","\"What is the capital of France?\""],a:[0],
+ x:"Two or more phrases from the reasoning keyword list promote a request to REASONING (cause `reasoning_override`), if its score clears the SIMPLE boundary. The \"prove\" prompt has only one listed phrase and scored MEDIUM."},
+{d:12,s:"§14b",q:"How must the routes be passed in `auto_router_config` for the semantic router?",
+ o:["As a JSON string, e.g. `json.dumps({\"routes\": [...]})`","As a Python dict","As a list of route names","As a path to a YAML file"],a:[0],
+ x:"The field is typed as a string, and a dict fails validation. `auto_router_config_path` exists, but it goes through semantic-router's own loader, which needs its own encoder settings."},
+{d:12,s:"§14b",q:"In a semantic route `{\"name\": \"coder\", \"utterances\": [...], \"score_threshold\": 0.3}`, what is `coder`?",
+ o:["The model group that matching requests are sent to","A label used only in logs","The embedding model","The default model"],a:[0],
+ x:"The router sends a match to the model group named by the route. When no route clears its threshold, the request goes to `auto_router_default_model`."},
+{d:12,s:"Ex 14b.2",q:"After the semantic router has built its route index, the embedding model goes down. What happens to the next request?",
+ o:["It is sent to the default model, with cause `semantic_error`","It fails with a 500","It goes to the first route","It is retried until the embedding model is back"],a:[0],
+ x:"A failed query embedding falls back to the default model. A failure while the index is first built, on the first request, does fail that request."},
+{d:12,s:"§14c",q:"For a COMPLEX request, two models declare `quality_tier: 3` and neither sets `order`. Which does the quality router pick?",
+ o:["The one with the lower `input_cost_per_token`","A random one","The one listed first in `available_models`","The one with the higher price"],a:[0],
+ x:"Ties go to the lowest `order`, then the lowest input price, then the name. A model with no price counts as the most expensive."},
+{d:12,s:"Ex 14c.1",q:"No model declares the target quality tier 2. Where does the quality router send the request?",
+ o:["To the nearest higher tier, else the nearest lower tier, else `default_model`","Straight to `default_model`","It raises an error","To the lowest tier"],a:[0],
+ x:"Rounding up comes first, so a MEDIUM request with tiers 1 and 3 available goes to tier 3."},
+{d:12,s:"Ex 14c.2",q:"A model declares `litellm_routing_preferences.quality_tier` but is not in the quality router's `available_models`. What happens?",
+ o:["It is ignored without a warning","The router raises an error when built","It is added to the candidates automatically","It becomes the default model"],a:[0],
+ x:"Models declare their own tier, but the router config must still list every candidate."},
+{d:12,s:"§14d",q:"What changes the adaptive router's scores?",
+ o:["Signals in the conversation text, such as thanks, \"forget it\" or a rephrased request","Provider errors such as 429 and 500","Response latency","An explicit feedback API"],a:[0],
+ x:"Satisfaction adds to alpha; disengagement, rephrasing, repeated replies and tool failures add to beta. A 429 counts as exhaustion, which has no effect, and there is no feedback API."},
+{d:12,s:"Ex 14d.1",q:"An adaptive-router candidate declares `quality_tier: 3` and lists the request type in `strengths`. What is its starting mean for that request type?",
+ o:["0.95","0.7","1.0","0.5"],a:[0],
+ x:"Tiers 1, 2 and 3 start at 0.3, 0.5 and 0.7, plus 0.3 for a strength, capped at 0.95, with a weight of 10 pseudo-observations."},
+{d:12,s:"§14d",q:"Used from the SDK without the proxy, where does the adaptive router keep what it has learned?",
+ o:["In memory, per process","In Postgres, automatically","In Redis","In a local file"],a:[0],
+ x:"The proxy flushes the queued updates to Postgres every 10 seconds and reloads them at startup; the SDK alone keeps them in memory."},
+// 13 MCP gateway
+{d:13,s:"§15",q:"A proxy config lists an MCP server with `transport: stdio`, but its tools never appear at `/mcp`. What is the most likely cause?",
+ o:["`LITELLM_ENABLE_MCP_STDIO=true` is not set in the proxy's environment","stdio servers need a database","The master key cannot see stdio servers","stdio is not a supported transport"],a:[0],
+ x:"stdio MCP servers are off by default. Without the variable, the proxy only logs a warning at startup, the tools are missing, and calling one returns an error result."},
+{d:13,s:"§15",q:"Through the gateway, what is the name of the `lookup_price` tool of a server registered as `catalog`?",
+ o:["`catalog-lookup_price`","`lookup_price`","`catalog.lookup_price`","`mcp__catalog__lookup_price`"],a:[0],
+ x:"Tools are prefixed with the server name (or alias) and the separator `-` (`MCP_TOOL_PREFIX_SEPARATOR`). That is also why server names may not contain `-`."},
+{d:13,s:"§15",q:"Which endpoint serves only the tools of the server named `shop`?",
+ o:["`/shop/mcp`","`/mcp?server=shop`","`/mcp/shop`","`/mcp-rest/shop`"],a:[0],
+ x:"`/mcp` aggregates every server the key may use; `/{name}/mcp` scopes to one server, a comma-separated list, a toolset or an access group. The `x-mcp-servers` header also narrows `/mcp`."},
+{d:13,s:"§15",q:"A virtual key was created with no MCP permissions, and no server sets `allow_all_keys`. What happens when an MCP client connects with it?",
+ o:["It is refused with 403 on initialize","It sees every server","It sees only tools without side effects","It sees the servers its team owns, even if the team has no grant"],a:[0],
+ x:"MCP access is granted per key or team in `object_permission` (`mcp_servers`, `mcp_tool_permissions`); key and team grants are intersected. The master key sees everything."},
+{d:13,s:"Ex 15.1",q:"Through the gateway, a client calls a tool that doesn't exist. What does it get?",
+ o:["A result with `is_error` true and a message such as \"Tool 'refund' not found\"","An HTTP 404","A dropped connection","An exception raised inside the MCP server"],a:[0],
+ x:"Tool errors come back as results, so an agent can read the message and recover. A forbidden tool is reported the same way."},
+{d:13,s:"§15",q:"`mcp_server_cost_info` sets `default_cost_per_query: 0.001` and `tool_name_to_cost_per_query: {lookup_price: 0.01}`. What does one `lookup_price` call cost?",
+ o:["0.01","0.001","0.011","0.0, because MCP calls are free"],a:[0],
+ x:"A per-tool price wins over the default, which applies to the other tools. Each tool call is logged as its own `call_mcp_tool` event; listing tools costs nothing."},
+{d:13,s:"Ex 15.2",q:"A chat request to the proxy has `tools=[{\"type\": \"mcp\", \"server_url\": \"litellm_proxy/mcp/shop\"}]`, without `require_approval`. The model calls a shop tool. What happens?",
+ o:["The reply contains the `tool_calls`, and the tool is not run","The proxy runs the tool and calls the model again","The request is rejected","The proxy asks the user for approval"],a:[0],
+ x:"The proxy runs MCP tools itself only when every MCP entry sets `require_approval: \"never\"`. Then it returns `mcp_call_results`, and both model rounds are billed."},
+{d:13,s:"§15",q:"Why is `mock_tool_calls` sent in a client's request body to the proxy ignored?",
+ o:["The proxy strips client mocks unless the key's or team's metadata sets `allow_client_mock_response: true`","Mocks only work in the SDK","Tool calls cannot be mocked","The proxy needs `LIVE=0`"],a:[0],
+ x:"Put the mock in the deployment's `litellm_params` instead, as the section's config does."},
+{d:13,s:"§15",q:"How can a client send its own credential for an upstream MCP server registered as `github`?",
+ o:["In the header `x-mcp-github-authorization`","In the `x-litellm-api-key` header","In the request body as `mcp_token`","It cannot; only the proxy config holds upstream credentials"],a:[0],
+ x:"Per-server headers take the form `x-mcp-{server}-{header}`. The single `x-mcp-auth` header is deprecated. Credentials can also be set in config with `auth_type` or `static_headers`."},
+// 14 Skills gateway
+{d:14,s:"§16a",q:"With no `custom_llm_provider`, where does `litellm.list_skills()` (or the proxy's `GET /v1/skills`) go?",
+ o:["Anthropic's Skills API","The proxy's database","OpenAI","Every provider in turn"],a:[0],
+ x:"Both default to `anthropic`. Hosted skills need `custom_llm_provider=\"litellm_proxy\"`. Without an Anthropic key, the proxy answers with a 500 about `ANTHROPIC_API_KEY`."},
+{d:14,s:"§16a",q:"Which providers can `litellm.create_skill` store skills with?",
+ o:["Anthropic, or the proxy's own database","Any provider LiteLLM supports","OpenAI and Anthropic","Only the proxy's database"],a:[0],
+ x:"Anthropic is the only external Skills provider; others fail with \"... skills is not supported for <provider>\". `litellm_proxy` stores the zip in `LiteLLM_SkillsTable`."},
+{d:14,s:"§16a",q:"What does LiteLLM add to every Anthropic Skills API call?",
+ o:["The header `anthropic-beta: skills-2025-10-02`","A `container` field","An `x-litellm-skill` header","Nothing"],a:[0],
+ x:"A chat request with skills in its `container` also gets the beta header, plus `code-execution-2025-08-25` when the code-execution tool is present."},
+{d:14,s:"§16a",q:"A request to the proxy includes `container={\"skills\": [{\"type\": \"custom\", \"skill_id\": \"litellm_skill_...\"}]}`. What reaches the model?",
+ o:["The skill's `SKILL.md` text in the system prompt and one tool per skill, with `container` removed","The `container` field, unchanged","Only the skill's ID in a header","The zip file as an attachment"],a:[0],
+ x:"The `litellm_skills` hook resolves hosted skills, injects `# Available Skills` and the instructions, adds tools, and removes `container`, so native Anthropic skills in the same request are lost."},
+{d:14,s:"§16a",q:"How does the proxy tell a hosted skill from an Anthropic-native one?",
+ o:["Hosted skill IDs start with `litellm_skill_`","By the `type` field","By looking the ID up at Anthropic first","By the `version` field"],a:[0],
+ x:"Hosted skills are stored with IDs `litellm_skill_<uuid>`; the hook handles those and leaves other IDs for Anthropic."},
+{d:14,s:"Ex 16a.2",q:"What is true of `/.well-known/agent-skills/index.json` on the proxy in 1.109.1?",
+ o:["It needs no credentials","It returns 404 unless `litellm_settings.public_skills_index: true` is set","It lists every user's hosted skills, regardless of owner","It lists only the caller's skills"],a:[0,1,2],
+ x:"The discovery index is public by design, off by default, and calls `list_skills` without a caller, so no owner filter applies."},
+{d:14,s:"Ex 16a.2",q:"Why is the `sha256:` digest of a skill archive in the public index the same on every run?",
+ o:["Archives are repacked with `SKILL.md` at the root and fixed 1980-01-01 timestamps","The digest is of the skill ID","LiteLLM caches the first digest forever","The digest is of the display title"],a:[0],
+ x:"Reproducible archives let tools verify a download against the index."},
+{d:14,s:"Ex 16a.2",q:"User Bob fetches a hosted skill that Alice created. What does he get in 1.109.1?",
+ o:["An error saying the skill is not found (a 500 in 1.109.1), the same as for a missing ID","The skill","A 403 Forbidden","An empty skill"],a:[0],
+ x:"Skills belong to their creator; others can't list or fetch them, and the error doesn't reveal whether the ID exists. Proxy admins see everything."},
+{d:14,s:"§16a",q:"What does semantic skill search (`GET /v1/skills?query=...`) need?",
+ o:["`custom_llm_provider=litellm_proxy` and `litellm_settings.skill_search_embedding_model`","An Anthropic key","The `semantic-router` package","A vector database"],a:[0],
+ x:"It embeds each hosted skill's title, description and instructions with the configured embedding model and adds a `search_score` to each result."},
+// 15 Agent gateway (A2A)
+{d:15,s:"§16b",q:"What does a client send to `POST /a2a/<agent>` on the proxy?",
+ o:["A JSON-RPC 2.0 request with `method: \"message/send\"` (or `message/stream`) and the message in `params`","An OpenAI chat completion body","An Anthropic Messages body","A multipart form with the prompt"],a:[0],
+ x:"The agent gateway speaks A2A, which is JSON-RPC 2.0 over HTTP. A request without `jsonrpc: \"2.0\"` gets error `-32600`, and an unknown method gets `-32601`."},
+{d:15,s:"§16b",q:"A client fetches `/a2a/triage/.well-known/agent-card.json` from the proxy. What is the card's `url`?",
+ o:["The proxy's own URL for the agent, e.g. `http://localhost:4000/a2a/triage`","The agent's real backend URL","Empty, because the proxy removes it","The URL of the LiteLLM admin UI"],a:[0],
+ x:"The proxy rewrites the card's `url` so that a client following the card keeps going through the gateway, where keys, limits, logging and spend apply."},
+{d:15,s:"§16b",q:"How can agents be registered with the proxy? (Choose all that apply.)",
+ o:["An `agents:` list in the config file","`POST /v1/agents`, stored in Postgres","A `model_list` entry with `model: a2a/<name>`","Uploading the agent card to `/v1/skills`"],a:[0,1],
+ x:"Config agents get a stable hashed ID; runtime agents get a UUID. A `model_list` entry with `a2a/` calls an agent as a chat model but doesn't register it in the agent gateway."},
+{d:15,s:"Ex 16b.2",q:"A key is created with `object_permission: {\"agents\": [\"triage\"]}`, where `triage` is the agent's name. What happens when it calls `/a2a/triage` in 1.109.1?",
+ o:["403: the permission check compares agent IDs, not names","200: names and IDs both match","404: the agent is hidden","It calls every agent, because the list is ignored"],a:[0],
+ x:"List the `agent_id` from `GET /v1/agents`. Config agents have 64-character hashed IDs, and runtime agents have UUIDs."},
+{d:15,s:"§16b",q:"A non-admin key has no `object_permission.agents` and no agent access groups. Which agents may it call?",
+ o:["Every agent, unless `general_settings.agent_access_default_deny: true` is set","None","Only agents its team created","Only agents marked public"],a:[0],
+ x:"Like MCP servers, no list means no restriction. A key and its team that both have lists get their intersection."},
+{d:15,s:"Ex 16b.3",q:"Which headers reach the backend agent when a client calls it through the proxy? (Choose all that apply.)",
+ o:["The agent's `static_headers`","Client headers named in the agent's `extra_headers`","A client header `x-a2a-<agent>-x-locale`, arriving as `x-locale`","The client's `Authorization` header (its LiteLLM key)","Any other `x-` header the client sends"],a:[0,1,2],
+ x:"The proxy also adds `x-litellm-agent-id`, `x-litellm-user-id` and `x-litellm-trace-id`. To authenticate the proxy to the agent, use `static_headers` or `litellm_params.api_key` (sent as a bearer token)."},
+{d:15,s:"§16b",q:"How is a call to an A2A agent priced in the proxy's spend tracking?",
+ o:["From the agent's `litellm_params`: `cost_per_query`, or `input_cost_per_token`/`output_cost_per_token`; otherwise 0","From the price table of the model the agent uses internally","A fixed $0.001 per call","It isn't tracked"],a:[0],
+ x:"The proxy can't see what the agent spends inside, so the operator sets the price. It is charged to the key, team and spend log like a model call."},
+{d:15,s:"§16b",q:"An agent has `rpm_limit: 2`. What does the third `message/send` within a minute get?",
+ o:["HTTP 429 with a JSON-RPC `error` (code `-32000`) saying the rate limit was exceeded","HTTP 200 with an empty result","The request waits until the minute is over","HTTP 503"],a:[0],
+ x:"Errors stay in JSON-RPC form: denied (403), missing (404) and rate-limited (429) agents all return code `-32000` in the `error` object."},
+{d:15,s:"§16b",q:"What does `litellm_params.custom_llm_provider` do on an agent entry?",
+ o:["Uses the completion bridge: the proxy turns the A2A message into a `litellm.acompletion` call, so a non-A2A agent platform or any model can be served as an A2A agent","Chooses which model the agent itself uses internally","Sets the provider used to price the agent","Nothing; it is ignored for agents"],a:[0],
+ x:"Examples are `langgraph`, `langflow`, Bedrock AgentCore, or `openai` with a model and `api_key`. `GET /v1/agents` shows the `api_key` as `REDACTED_BY_LITELM`."},
+{d:15,s:"Ex 16b.1",q:"`litellm.completion(model=\"a2a/echo\", api_base=..., messages=[{\"role\": \"user\", \"content\": \"hello\"}])` calls an agent that upper-cases its input. What is the reply?",
+ o:["`USER: HELLO`, because the `a2a/` provider flattens the messages into one text part with role prefixes","`HELLO`","`hello`","An error, because agents can't be called with `completion()`"],a:[0],
+ x:"The agent receives `user: hello` as one text part of a `message/send`. Usage is LiteLLM's own token count of that text, because A2A has no usage field."},
+{d:15,s:"§16b",q:"In what order do the events of an A2A `message/stream` reply usually arrive?",
+ o:["A `task`, then `artifact-update` chunks, then a `status-update` with `final: true`","Text deltas in OpenAI `choices[0].delta` form","One `message` event only","A `status-update` first, then the task"],a:[0],
+ x:"Each `data:` line is a complete JSON-RPC response whose `result` is the event. You put the answer together from the artifact parts."},
+{d:15,s:"§16b",q:"An admin sends `PATCH /v1/agents/<id>` with `{\"enabled\": false}` for an ordinary runtime agent. What happens in 1.109.1?",
+ o:["The PATCH returns 200, but the agent keeps answering; `enabled` is enforced only for agents with a managed identity","The agent returns 403 from then on","The agent is deleted","The PATCH is rejected with 422"],a:[0],
+ x:"To stop an ordinary agent, delete it or remove it from keys' `object_permission.agents`."},
+{d:15,s:"§16b",q:"Why does `PATCH /v1/agents/<id>` return 404 for the `triage` agent from the config file, even though `GET /v1/agents` lists it?",
+ o:["Config agents aren't in the database, and the update routes only change database agents","The ID changes on every restart","PATCH needs the agent's name instead of its ID","Config agents are read-only only for non-admin keys"],a:[0],
+ x:"Change a config agent in the config file, or register the agent at runtime with `POST /v1/agents` if you need to edit it through the API."},
+{d:15,s:"§16b",q:"Which statements about calling an agent card through the proxy are true? (Choose all that apply.)",
+ o:["Without a key it returns 401","With a key that may not use the agent it returns 403","It is public, like the skills discovery index","It returns the card the backend agent serves, unchanged"],a:[0,1],
+ x:"Unlike `/.well-known/agent-skills/index.json`, agent cards need a key. The card comes from the proxy's registry, with its `url` rewritten."},
+// 16 Prompt management
+{d:16,s:"§17",q:"In `completion(model=\"dotprompt/openai/gpt-3.5-turbo\", prompt_id=\"support\", messages=[question])`, the file `support.prompt` sets `model: openai/gpt-4o-mini`. What is sent?",
+ o:["Model `gpt-4o-mini`, with the template's messages first and `question` last","Model `gpt-3.5-turbo`, with the template's messages","Model `gpt-4o-mini`, with only the template's messages","Model `gpt-3.5-turbo`, with `question` first"],a:[0],
+ x:"The template's model replaces the caller's, and template messages are put before the caller's messages."},
+{d:16,s:"§17",q:"Which template language do `.prompt` files use in LiteLLM 1.109.1?",
+ o:["Sandboxed Jinja2, with variables HTML-escaped","Handlebars","Python `str.format`","Mustache without escaping"],a:[0],
+ x:"Blocks are `{% if %}`, not Handlebars `{{#if}}`, and `Tom & Jerry's` renders as `Tom &amp; Jerry&#39;s`."},
+{d:16,s:"§17",q:"A `.prompt` file sets `temperature: 0.2`. The SDK call passes `temperature=0.9`. What does the provider receive?",
+ o:["`temperature` 0.9: the SDK drops template parameters in 1.109.1","`temperature` 0.2","Both values","No temperature"],a:[0],
+ x:"Through the SDK, parameters returned by the prompt manager are overwritten or discarded. The proxy does apply them: the same template there sent 0.2."},
+{d:16,s:"§17",q:"What does `prompt_version=2` load for prompt ID `support`, and what if it is missing?",
+ o:["`support.v2.prompt`; if missing, the base prompt, silently","`support.prompt` line 2; an error if missing","Version 2 from Langfuse","`support/2.prompt`; an error if missing"],a:[0],
+ x:"Versions are separate files named `<id>.v<N>.prompt`."},
+{d:16,s:"§17",q:"In `.prompt` front matter, which top-level keys are reserved? (Every other key becomes a call parameter.)",
+ o:["`model`, `input` and `output`","`model` and `temperature`","`name` and `description`","Only `model`"],a:[0],
+ x:"So a Google-style `config:` block is passed as a parameter named `config`, which has no effect."},
+{d:16,s:"§17",q:"Which class does a custom prompt manager subclass, and which method does it usually override?",
+ o:["`CustomPromptManagement`; `get_chat_completion_prompt`, returning `(model, messages, params)`","`CustomLogger`; `log_pre_api_call`","`PromptTemplate`; `render`","`Router`; `get_available_deployment`"],a:[0],
+ x:"`CustomPromptManagement` is a `CustomLogger`, registered in `litellm.callbacks`. Its default `get_chat_completion_prompt` passes everything through."},
+{d:16,s:"§17",q:"A call passes `prompt_id=\"unknown\"`, and no manager knows that ID. What happens?",
+ o:["The call goes out with its own model and messages, without an error","It raises `ValueError`","It returns an empty response","It uses the first prompt in the directory"],a:[0],
+ x:"Unknown IDs pass through silently, so a typo goes unnoticed. The log metadata may still name the integration."},
+{d:16,s:"§17",q:"A custom manager overrides both the sync and the async prompt hooks, and the app calls `acompletion`. What goes wrong?",
+ o:["The template is applied twice","The template is never applied","The call deadlocks","Nothing"],a:[0],
+ x:"`acompletion` runs the async hook and then the sync one. Override only `get_chat_completion_prompt`, or use the `dotprompt/` model prefix."},
+{d:16,s:"§17",q:"On the proxy, which setting keeps the client's model instead of the template's?",
+ o:["`ignore_prompt_manager_model` in the prompt's `litellm_params`","`drop_params: true`","`prompt_label: client`","It cannot be changed"],a:[0],
+ x:"`ignore_prompt_manager_optional_params` does the same for parameters. Config prompts go in a top-level `prompts:` list."},
+// 17 Observability integrations
+{d:17,s:"§18",q:"What do all of LiteLLM's built-in logging integrations read from?",
+ o:["The standard logging payload, `kwargs[\"standard_logging_object\"]`","The raw provider response","The proxy's database","Their own copy of the request"],a:[0],
+ x:"It holds IDs, model, tokens, `response_cost`, timings, `cache_hit`, `request_tags`, metadata (including routing decisions), messages, response and error."},
+{d:17,s:"§18",q:"What OpenTelemetry span does LiteLLM create for a call made outside any span?",
+ o:["`litellm_request`, with `gen_ai.*` attributes and a `raw_gen_ai_request` child","`chat.completions`","`llm_call`","No span; only metrics"],a:[0],
+ x:"`metadata={\"generation_name\": \"X\"}` renames the request span to `X`."},
+{d:17,s:"§18",q:"Calls are made inside your own active span. Without `USE_OTEL_LITELLM_REQUEST_SPAN=true`, what happens?",
+ o:["LiteLLM writes its attributes onto your span instead of creating child spans","LiteLLM creates child spans","LiteLLM creates new root traces","Tracing is disabled"],a:[0],
+ x:"With `acompletion`, your span has often ended by then, so you get \"Setting attribute on ended span\" warnings and lose the attributes."},
+{d:17,s:"§18",q:"In what order does LiteLLM choose a span's parent?",
+ o:["`metadata[\"litellm_parent_otel_span\"]`, then the `traceparent` header, then the active span, then none","The active span, then `traceparent`","`traceparent` only","Always a new root"],a:[0],
+ x:"That is why proxy spans join the caller's trace when the request carries a W3C `traceparent` header."},
+{d:17,s:"§18",q:"With `callbacks: [\"prometheus\"]` on the proxy, what is true of `/metrics` by default in 1.109.1?",
+ o:["It requires a key","It redirects to `/metrics/`","It needs an enterprise licence","It is public"],a:[0,1],
+ x:"`require_auth_for_metrics_endpoint` defaults to true, and the endpoint is a mounted app, so use `curl -L`. Prometheus is not licence-gated in 1.109.1."},
+{d:17,s:"§18",q:"What does `custom_prometheus_tags: [\"support\"]` add to the proxy's metrics?",
+ o:["A `tag_support` label, `\"true\"` or `\"false\"` per request","A metric named `support_total`","A label holding all tags","Nothing unless the key has the tag"],a:[0],
+ x:"Tags come from the request's `metadata.tags`, so spend and requests can be split by tag."},
+{d:17,s:"§18",q:"`litellm_settings.callbacks: [\"otel\"]` is set, but `opentelemetry-sdk` is not installed. What happens?",
+ o:["The proxy refuses to start","The proxy starts and logs to the console","The proxy installs the package","The proxy ignores the callback silently"],a:[0],
+ x:"On the proxy a missing package is fatal (\"Could not build the 'otel' callback\"); in the SDK it is a non-blocking error and calls carry on without traces."},
+{d:17,s:"§18",q:"What does global `litellm.turn_off_message_logging = True` do to OpenTelemetry spans?",
+ o:["Removes message content attributes and skips the `raw_gen_ai_request` span","Stops all spans","Only hides the response","Encrypts the messages"],a:[0],
+ x:"A per-call `turn_off_message_logging=True` keeps the attributes, with content replaced by `redacted-by-litellm`."},
+{d:17,s:"§18",q:"A key and its team both set `metadata.logging` callbacks. Which apply to the key's requests?",
+ o:["Only the key's","Both, merged","Only the team's","Neither"],a:[0],
+ x:"Key-level logging replaces team-level logging; they are not merged. Both need the database."},
+
+// 18 Lens: agent run review
+{d:18,s:"§19",q:"How does Lens differ from the tracing backends in section 18?",
+ o:["It stores agent traces and also reviews them: an analysis model groups problems into findings with quotes from the spans","It only exports LiteLLM's metrics to Prometheus","It replaces the proxy's spend logs in Postgres","It is a hosted SaaS that cannot run on your own infrastructure"],a:[0],
+ x:"Lens keeps traces in your own ClickHouse, and its investigations send selected trace content to an analysis model that reports findings with evidence from the stored spans."},
+{d:18,s:"§19",q:"What does a standalone Lens deployment need?",
+ o:["Lens and ClickHouse; no LiteLLM proxy and no Postgres","Lens, a LiteLLM proxy and Postgres","Lens and Redis","Lens and an OpenTelemetry collector"],a:[0],
+ x:"The release bundle and the Helm chart both include Lens and ClickHouse. A proxy (v1.108.0 or later) is optional and adds cost, identity and the Admin UI entry."},
+{d:18,s:"§19a",q:"An agent uploads spans to Lens with a tracing key. What else can that key do?",
+ o:["Check delivery with `POST /v1/traces/receipt`; it cannot read traces back","Read every trace of its owner with `GET /v1/traces`","Create investigations","Nothing: delivery cannot be checked"],a:[0],
+ x:"A tracing key writes and confirms delivery only. Reading traces with it returned 401 in 19a; the receipt answers only `received: true` or `false`."},
+{d:18,s:"§19a",q:"LiteLLM's OpenTelemetry spans for `acompletion` calls show up in Lens as `chain` steps, and runs report `llm_calls: 0`. What fixes it?",
+ o:["Set `OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental` before the `OpenTelemetry` logger is created","Switch the agent to synchronous `completion()`","Set `USE_OTEL_LITELLM_REQUEST_SPAN=false`","Upgrade ClickHouse"],a:[0],
+ x:"By default LiteLLM writes `gen_ai.operation.name=acompletion` on async calls, a name Lens doesn't recognise. With the latest GenAI conventions the operation is `chat` and the span is named `chat <model>`."},
+{d:18,s:"§19a",q:"Which statements about Lens's SQL endpoint, `POST /v1/traces/query`, are true? (Choose two.)",
+ o:["`Duration` in `otel_traces` is in nanoseconds","Use `spend_logs FINAL` before summing cost","It accepts `DROP TABLE` from the admin token","It returns 400 for SQL it can't parse"],a:[0,1],
+ x:"It is read-only ClickHouse SQL with 256 MiB and 10 seconds per query. In 0.1.0 both a syntax error and a refused statement came back as 503, not 400."},
+{d:18,s:"§19b",q:"What turns on a LiteLLM proxy's connection to Lens?",
+ o:["Setting `LITELLM_LENS_URL` (or `general_settings.tracing.store.type: lens`), with the shared secrets","Adding `\"lens\"` to `litellm_settings.callbacks`","Pointing the proxy's OTel exporter at Lens","Installing the `lens` Python package"],a:[0],
+ x:"The proxy also needs `LITELLM_LENS_SERVICE_TOKEN` and `LENS_GATEWAY_SECRET`, the same 32-to-512-character values that Lens has. `LITELLM_LENS_PUBLIC_URL` is the address shown to exporters."},
+{d:18,s:"§19b",q:"What is `LENS_GATEWAY_SECRET` for?",
+ o:["Lens verifies the user identity the proxy forwards with each request","The proxy authenticates its internal calls to Lens","Agents upload spans with it","ClickHouse uses it as its password"],a:[0],
+ x:"`LITELLM_LENS_SERVICE_TOKEN` authenticates the proxy's internal calls (request records, reads); `LENS_GATEWAY_SECRET` signs the caller identity the proxy forwards for `/lens` and `/v1/traces` requests."},
+{d:18,s:"§19b",q:"An exporter is pointed at `http://proxy:4000/v1/traces`. What happens?",
+ o:["The proxy answers 410: send traces directly to Lens","The proxy forwards the spans to Lens","The proxy stores them in Postgres","The proxy converts them to spend logs"],a:[0],
+ x:"The proxy serves trace reads, but its upload routes answer 410 with \"Send traces and logs directly to the Lens endpoint\"."},
+{d:18,s:"§19b",q:"An agent uses the LiteLLM SDK (`litellm_proxy/...`) against a proxy connected to Lens. Every model call shows `spend_match: ambiguous`. What fixes it?",
+ o:["Send the same ID as `litellm_call_id=` and as the `x-litellm-call-id` header","Use the master key for the agent","Turn off the OTel logger","Raise the export batch size"],a:[0],
+ x:"Lens matches a span to a request record by the provider response ID and by LiteLLM's call ID. The SDK and the proxy each made their own call ID, so the keys disagreed; the proxy adopts the header's ID."},
+{d:18,s:"§19b",q:"Calls go through the proxy with the agent's virtual key (user `agent-owner`, team `support`), but Lens marks them `no_spend_log`. The tracing key was created with the master key. Why?",
+ o:["A request record only matches spans whose tracing key has the same team and the same user or key","The master key cannot create tracing keys","Request records are exported only once a day","Lens prices calls only for OpenAI models"],a:[0],
+ x:"The master key's tracing key belonged to `default_user_id`. Creating it with the agent's own key (whose user needs `proxy_admin`) in the same team made every call `matched`."},
+{d:18,s:"§19b",q:"Through a connected proxy, which keys can read the `support` team's runs? (Choose two.)",
+ o:["A proxy admin's key","A team member's key once the team grants `/spend/logs` to its members","A team service-account key with no user","Any key in the team, by default"],a:[0,1],
+ x:"Proxy admins read every run. Other users read their own runs, plus a team's runs when the team grants `/spend/logs`. A service-account key with no user gets 403, and everything under `/lens` is admin-only."},
+{d:18,s:"§19c",q:"An investigation started right after the agent's runs screened 0 runs. Why?",
+ o:["Lens skips traces received in the last two minutes, so it doesn't analyse runs still in progress","The analysis model was unreachable","Investigations only look at yesterday's traces","Runs need at least 10 traces before any investigation"],a:[0],
+ x:"Waiting 150 seconds fixed it. The 10-trace threshold applies to the automatic per-agent analysis, not to an investigation you start."},
+{d:18,s:"§19c",q:"How does Lens keep an analysis model from inventing evidence?",
+ o:["It checks every quote in a finding against the recorded span and drops what it can't verify","It asks a second model to vote","It only reports findings with high priority","It trusts the model's citations"],a:[0],
+ x:"A quote that differs only in whitespace or escaping is saved as the recorded text. One that can't be found goes back to the model, and if it still can't be verified the task is dropped and the verified findings are kept."},
+{d:18,s:"§19c",q:"An investigation run reports `status: completed`. What should you still check?",
+ o:["`coverage.failed_tasks` and the job's `error`: a task can fail and the run still say completed","Nothing; completed means every run was analysed","Whether ClickHouse is healthy","The proxy's Prometheus metrics"],a:[0],
+ x:"In 19c a run with one failed task (a cited span that didn't exist) still reported `completed`, with the reason in `error`."},
+{d:18,s:"§19c",q:"Which body starts a single investigation run (not a schedule) with named checks?",
+ o:["`{\"name\": ..., \"model\": \"analysis\", \"agent_name\": ..., \"checks\": [{\"id\": ..., \"instruction\": ...}], \"enabled\": false}`","`{\"query\": \"SELECT ...\", \"once\": true}`","`{\"model\": \"analysis\", \"trace_ids\": [...]}`","`{\"prompt\": ..., \"schedule\": null}`"],a:[0],
+ x:"`POST /lens` takes `context` or `checks`, `lookback_hours` (default 24), `interval_minutes` (default 15) and `monthly_budget` (default 100 USD); `enabled: false` runs it once."},
+{d:18,s:"Ex 19c.1",q:"An evidence item's `execution_id` is opaque in the API. How do you find the trace it points to?",
+ o:["Decode it: it is base64 JSON `[\"traces\", \"\", trace_id, trace_ref]`","Look it up with `GET /lens/executions`","It is the trace ID","Query `spend_logs` by it"],a:[0],
+ x:"With the trace ID and `trace_ref`, `GET /v1/traces/{trace_id}/spans/{span_id}` returns the quoted span's input and output."},
+// 19 Access control, identity and secrets
+{d:19,s:"§20a",q:"An app's key must call models but never mint or change keys, even if it is stolen. Which key setting does that?",
+ o:["`key_type: \"llm_api\"`","`max_budget: 0`","`user_role: \"internal_user\"` on the key","`metadata: {\"scope\": \"llm\"}`"],a:[0],
+ x:"An `llm_api` key may only call LLM routes; `/key/generate` with it returned 403 (\"Only allowed to call routes: ['llm_api_routes']\"). `allowed_routes` can narrow a key further, down to one route."},
+{d:19,s:"§20a",q:"A user with role `internal_user` calls `/key/generate` with `user_id` set to a colleague. What happens?",
+ o:["403: internal users can only create keys for themselves","200: any user may create keys for anyone in their team","401: only the master key can create keys","The key is created but blocked"],a:[0],
+ x:"The proxy answered \"User can only create keys for themselves\". Creating users needs an admin. For read-everything-change-nothing access, use `proxy_admin_viewer`."},
+{d:19,s:"§20a",q:"What does the `LiteLLM_VerificationToken` table hold for a virtual key?",
+ o:["`sha256(key)` in `token` and a masked form such as `sk-...asnA` in `key_name`","The key in plain text","The key encrypted with `LITELLM_SALT_KEY`","Nothing; keys live only in memory"],a:[0],
+ x:"A database dump doesn't leak usable keys, but the proxy can't show a lost key again either: hand the key out once, at creation."},
+{d:19,s:"§20a",q:"Without a licence, an admin creates a key with `enforced_params: [\"user\"]`. What happens?",
+ o:["`/key/generate` returns 200, and every call with the key then fails with 500 \"Enforced Params is an Enterprise feature\"","`/key/generate` refuses with 403","The field is silently ignored and calls work","The proxy refuses to start"],a:[0],
+ x:"`enforced_params` is accepted at creation and fails at call time. The other Enterprise-only key fields (`tags`, `guardrails`, `model_max_budget`) are refused by `/key/generate`. Test each new key with a real call."},
+{d:19,s:"Ex 20.4",q:"`/key/regenerate` is Enterprise-only for virtual keys. How do you rotate a key without downtime and without a licence?",
+ o:["Issue a new key with the same scope, switch the caller, `/key/block` the old key for a grace period, then `/key/delete` it","Change the key's alias with `/key/update`","Restart the proxy with a new master key","Delete the old key first, then issue the new one"],a:[0],
+ x:"During the overlap both keys work. Blocking first is reversible (`/key/unblock`) if a forgotten caller breaks. Rotating the master key is free too: with `LITELLM_SALT_KEY` set, change the value and restart; on 1.109.1 don't call `/key/regenerate` with `new_master_key` in that setup."},
+{d:19,s:"§20b",q:"A `custom_auth` function returns `UserAPIKeyAuth(models=[\"chat-cheap\"], ...)` for a user. With `custom_auth_run_common_checks: true` and no database, the user requests `chat`. What happened in the tutorial's first run?",
+ o:["200: the proxy did not check the returned `models` against the request, so the function must check the model itself","403 from the proxy's model check","400: unknown model","401: the token was refused"],a:[0],
+ x:"The key-level model check only runs for virtual keys from the database, and the common checks enforce team models only for teams in the database. The fixed `oidc_auth.py` reads the request body and refuses other models with 403."},
+{d:19,s:"§20b",q:"After adding `custom_auth`, the master key gets 401 on admin routes. Why?",
+ o:["`custom_auth` replaces all of the proxy's key checks, so the function must accept the master key itself","The master key must be rotated after enabling custom auth","`custom_auth` needs `enable_jwt_auth` too","The master key only works on the admin UI"],a:[0],
+ x:"The example compares the credential with `LITELLM_MASTER_KEY` using `hmac.compare_digest` and returns a `PROXY_ADMIN` identity. Database virtual keys also stop working unless the function looks them up."},
+{d:19,s:"Ex 20.2",q:"Which part of `jwt.decode(token, key, algorithms=[\"RS256\"], audience=..., issuer=...)` refuses a token with `alg: none`, and one signed with HS256 using the IdP's public key as the secret?",
+ o:["`algorithms=[\"RS256\"]`","`audience=`","`issuer=`","`leeway=`"],a:[0],
+ x:"Pinning the algorithm list is what stops algorithm-confusion attacks. `audience` stops tokens issued for another application, and `issuer` stops tokens from another tenant."},
+{d:19,s:"§20",q:"Which of these are free in LiteLLM 1.109.1? Select all that apply.",
+ o:["`custom_auth` (your own auth function)","Admin UI single sign-on for up to 5 users","AWS Secrets Manager as `key_management_system`","`enable_jwt_auth` for API callers","SCIM v2 provisioning"],a:[0,1,2],
+ x:"JWT auth returned 403 \"JWT Auth is an enterprise only feature\" on every JWT request, and SCIM routes check for a licence. HashiCorp Vault, Google Secret Manager and CyberArk are Enterprise too, but a `CustomSecretManager` can read Vault for free."},
+{d:19,s:"Intro",q:"You bought a LiteLLM Enterprise licence. How do you turn it on, and how do you confirm it is active?",
+ o:["Set `LITELLM_LICENSE` and restart the proxy; the API docs page at the proxy's root URL then says \"Enterprise Edition\"","Install the `litellm-enterprise` Docker image instead of the open-source one","Call `/license/activate` with the master key","Set `premium_user: true` under `general_settings`"],a:[0],
+ x:"Enterprise and open source share one image and one version, so there is nothing to migrate. Without a valid licence, the docs page shows no \"Enterprise Edition\" line."},
+{d:19,s:"Intro",q:"Which statement about LiteLLM's licensing is accurate for 1.109.1?",
+ o:["`litellm[proxy]` also installs `litellm-enterprise`, whose licence is proprietary, so have legal review both licence files","Everything installed by `pip install litellm[proxy]` is MIT","Commercial use of the proxy needs a licence even without Enterprise features","The Enterprise features are in a separate Docker image"],a:[0],
+ x:"The top-level `LICENSE` applies MIT to everything except `enterprise/`. On PyPI that code is the `litellm-enterprise` package (`LicenseRef-Proprietary`). Removing the licence check to use its features falls outside the MIT grant."},
+{d:19,s:"Intro",q:"The Enterprise page lists every secret manager as licensed. Which of these had no licence check in the 1.109.1 source? Select all that apply.",
+ o:["AWS Secrets Manager","Azure Key Vault","A custom secret manager class","HashiCorp Vault","Google Secret Manager"],a:[0,1,2],
+ x:"HashiCorp Vault, Google Secret Manager, CyberArk and AWS KMS check for a licence. Docs and code can disagree, and behaviour can change in a later release: check the version you deploy."},
+{d:19,s:"§20b",q:"Your `custom_auth` validates AWS Cognito **access** tokens and refuses every one with `InvalidAudienceError`. What is the likely cause?",
+ o:["Cognito access tokens carry `client_id`, not `aud`; check `client_id` (and `token_use`) instead","Cognito signs with HS256","Cognito has no JWKS endpoint","Cognito tokens never expire"],a:[0],
+ x:"Each IdP has a quirk: Entra drops `groups` past about 200 groups (prefer app roles), Auth0's issuer has a trailing slash, and Okta's org authorization server issues tokens only for Okta's own APIs."},
+{d:19,s:"§20c",q:"A proxy with `store_model_in_db: true` is restarted with a different `LITELLM_SALT_KEY`. What happens to models added through `/model/new`?",
+ o:["They silently disappear: the proxy logs a WARNING and clients get 400 \"Invalid model name\"","The proxy refuses to start","They are re-encrypted with the new salt","They keep working, because the salt only protects virtual keys"],a:[0],
+ x:"Stored provider credentials are encrypted with the salt key (or the master key if none is set). Set the salt key before the first credential is stored, never change it, and back it up."},
+{d:19,s:"§20c",q:"The secret manager is unreachable when the proxy starts, and the proxy's environment still has an old `OPENAI_API_KEY`. What does LiteLLM do?",
+ o:["Logs an ERROR (\"Defaulting to os.environ value\") and uses the stale environment value","Refuses to start","Starts but refuses requests to that model","Retries the secret manager until it answers"],a:[0],
+ x:"It fails open to the environment. Don't keep same-named variables in the proxy's environment, and alert on that log line."},
+{d:19,s:"§20c",q:"You rotate a provider key in Vault. When does a running proxy start using it?",
+ o:["After the proxy restarts: secrets are read at startup","Within a minute, on the next cache refresh","Immediately, on the next request","Only after `/key/regenerate`"],a:[0],
+ x:"Safe order: add the new key at the provider, update the store, do a rolling restart, then revoke the old key. Revoking first causes an outage."},
+{d:19,s:"§20b",q:"Each signed-in person must have a spend cap that holds whichever token or key they use. Where does that cap live?",
+ o:["On their user row: `/user/new` with `max_budget` and `budget_duration`, with the auth function returning their `user_id`","On each virtual key, as `max_budget`","In the IdP token, as a `budget` claim","In `litellm.max_budget`"],a:[0],
+ x:"Every request attributed to that `user_id` is checked against the user's budget. A fresh IdP token didn't help alice in the demo, and on a proxy without `custom_auth`, all of a person's keys shared one cap (exercise 20.5)."},
+{d:19,s:"§20b",q:"A `custom_auth` function returns `user_id` for a person who has no user row, with `custom_auth_run_common_checks: true`. What happens to their spending?",
+ o:["Nothing limits it: a missing row is treated as \"no user limits\", so calls succeed uncapped","Every call fails with 404 \"User not found\"","The proxy creates the row with a default budget","The calls are capped by the master key's budget"],a:[0],
+ x:"The proxy logs the `UserNotFoundError` at debug level and runs without a user budget; 7 calls in a row got 200. The auth function must create the row on first sign-in (as `budget_auth.py` does) or refuse the call."},
+{d:19,s:"§20b",q:"A user has `budget_duration: \"1mo\"` and runs out on 20 November. When is the budget reset, with default settings?",
+ o:["On 1 December at 00:00 UTC, once the reset job next runs (it runs about every 10 minutes)","Exactly one month after the user's first call","On 20 December at the time they ran out","Only when an admin calls `/user/update`"],a:[0],
+ x:"Resets fall on calendar checkpoints: `1d` at the next midnight, `7d` on Monday, `30d` and `1mo` on the 1st. `litellm_settings.timezone` and `budget_reset_time` move them. Lower `proxy_budget_rescheduler_min_time`/`max_time` if minutes matter."},
+{d:19,s:"Ex 20.6",q:"Alice is over her personal cap, but she also holds a key for team `search`, which has budget left. On a default proxy, can she keep spending with the team key?",
+ o:["Yes: a team key skips its owner's personal cap unless `apply_user_budget_to_team_keys: true`","No: the user cap always applies","No: team keys can't carry a `user_id`","Only if the team key has its own `max_budget`"],a:[0],
+ x:"The proxy skips the user budget check for any key with a team. With the setting turned on, the same key gave `[200, 200, 200, 422, 422, 422]`."},
+{d:19,s:"§20b",q:"How should an admin suspend one person's LLM access on a proxy that creates user rows on first sign-in?",
+ o:["`/user/update` with `max_budget: 0`; restore their budget later","`/user/delete` their row","Wait for their IdP token to expire","Restart the proxy"],a:[0],
+ x:"Provisioning only creates missing rows, so the suspension survives their next sign-in. Deleting the row loses their spend history, and their next sign-in creates a new row from the group's budget."},
+
+// 20 Guardrails and production hardening
+{d:20,s:"§21a",q:"A `pre_call` guardrail masks email addresses. What does the provider receive for \"Email jane@corp.com\"?",
+ o:["`Email [EMAIL_REDACTED]`","The original text; masking applies only to the reply","The original text; masking applies only to logs","Nothing; masked requests are dropped"],a:[0],
+ x:"`echo_upstream.py` recorded the redacted text. The provider, its logs and its retention never see the value. `logging_only` never changes the request or the reply; with Presidio it masks what logging callbacks see."},
+{d:20,s:"§21a",q:"A client adds `\"metadata\": {\"disable_global_guardrails\": true}` to its request. What happens to the `default_on` guardrails?",
+ o:["Nothing; they still run, because only an admin can exempt a key or team","They are all skipped for that request","Only post_call guardrails are skipped","The request is refused with 400"],a:[0],
+ x:"The run showed `mail [EMAIL_REDACTED]` despite the flag. Admins set `disable_global_guardrails` or `opted_out_global_guardrails` in key or team metadata; per-key guardrail settings are Enterprise-only in 1.109.1."},
+{d:20,s:"§21a",q:"A `pre_call` guardrail with action BLOCK matches a prompt. What does the client get, and is the model called?",
+ o:["400 with `guardrail_name` in `provider_specific_fields`; the model is not called","200 with an empty reply; the model is called","403; the model is called","500; the model is not called"],a:[0],
+ x:"Blocked prompts never reached the fake provider, so they cost nothing. The error body names the guardrail and the rule that matched."},
+{d:20,s:"§21a",q:"A guardrail has `default_on: false`. How does a request use it?",
+ o:["`\"guardrails\": [\"topic-guard\"]` in the request body","It can't; such guardrails only run on admin keys","Set the header `x-litellm-guardrails: on`","Restart the proxy with the guardrail listed"],a:[0],
+ x:"`x-litellm-applied-guardrails` in the response lists what actually ran."},
+{d:20,s:"§21a",q:"How much protection do the `prompt_injection_*` keyword categories of `litellm_content_filter` give?",
+ o:["A cheap first filter for known phrasings: rewording gets through and innocent prompts can be blocked, so combine them with tool permissions, authorization outside the model and a model-based classifier where the risk warrants it","Complete protection against prompt injection","None; they only log","They need an external service"],a:[0],
+ x:"They match phrases such as \"ignore all previous instructions\" or \"pretend\" + \"no restrictions\". The real defence is limiting what the model is allowed to do."},
+{d:20,s:"§21a",q:"A vendor guardrail takes 300 ms and only needs to block, never rewrite. Which mode runs it alongside the model call, so it adds latency only when it is slower than the model?",
+ o:["`during_call`","`pre_call`","`post_call`","`logging_only`"],a:[0],
+ x:"`during_call` runs alongside the model call and can only block. Masking needs `pre_call`; `during_call` with MASK is flagged as unstable in the source."},
+{d:20,s:"§21b",q:"Which of these does a proxy with default settings serve without any key? Select all that apply.",
+ o:["Swagger UI at `/`","ReDoc at `/redoc`","The OpenAPI schema at `/openapi.json`","The admin UI's pages at `/ui/`","`/v1/models`"],a:[0,1,2,3],
+ x:"`/v1/models`, `/metrics` and every LLM route need a key. The probe also found CORS `*` and the `x-litellm-version` and `x-litellm-model-api-base` response headers."},
+{d:20,s:"Ex 21.3",q:"With `NO_DOCS=True`, `NO_REDOC=True` and `DISABLE_ADMIN_UI=True`, what is still exposed?",
+ o:["`/openapi.json` (until `NO_OPENAPI=True` is also set) and the UI's static files, plus the version and upstream headers; block and strip them at the edge proxy","Nothing","Only Swagger UI","Only `/health/readiness`"],a:[0],
+ x:"`DISABLE_ADMIN_UI` turns off sign-in and SSO, not the static bundle. No OSS setting removes the `x-litellm-*` headers, so the reference stack's nginx hides them."},
+{d:20,s:"§21b",q:"Two proxy replicas share Postgres but have no coordination Redis (and no `REDIS_HOST`). A key has `rpm_limit: 4`. About how many of 10 quick calls succeed?",
+ o:["8: each replica counts on its own","4","10","0"],a:[0],
+ x:"Limits and budgets multiply by the replica count. With `general_settings.coordination_redis` the same test allowed exactly 4."},
+{d:20,s:"§21b",q:"Redis stops in a stack that uses `coordination_redis`. What happens to requests and limits?",
+ o:["Requests keep flowing and each replica enforces its own counter; after Redis returns, a circuit breaker keeps it bypassed for about 60 seconds","All requests fail with 503","The proxy restarts","Limits stop being enforced at all"],a:[0],
+ x:"It fails open to per-replica limits. Alert on \"Redis circuit breaker is open\"; `REDIS_CIRCUIT_BREAKER_RECOVERY_TIMEOUT` defaults to 60."},
+{d:20,s:"§21b",q:"Postgres goes down. Which of these did the tutorial observe? Select all that apply.",
+ o:["`/health/readiness` returned 503 (with a body saying `\"status\":\"healthy\"`)","A key no replica had cached got 503","A key a replica had already cached kept working on that replica","Every request, cached key or not, got 200"],a:[0,1,2],
+ x:"Read the readiness status code, not the body. `allow_requests_on_db_unavailable: true` would also admit unknown keys; keep it false unless availability matters more than access control."},
+{d:20,s:"§21b",q:"On a licensed proxy, `general_settings.allowed_ips: [\"10.0.0.0/8\"]` blocks every client. Why?",
+ o:["`allowed_ips` matches exact addresses only, not CIDR ranges","The list must use IPv6 notation","It needs `use_x_forwarded_for: true`","Private ranges are always refused"],a:[0],
+ x:"List exact addresses, or filter by network at the edge or with security groups. Behind a load balancer, set `use_x_forwarded_for` and make sure only your edge can reach the proxy and that it overwrites `X-Forwarded-For`; `trusted_proxy_ranges` does not restrict the header for this check. Without a licence, a proxy with `allowed_ips` doesn't start at all."},
+{d:20,s:"§21b",q:"Both replicas of `ghcr.io/berriai/litellm-non_root` exit with `PermissionError: ... '/app/config.yaml'`. What is wrong?",
+ o:["The mounted file is mode 600, and the container runs as uid 65534, so it can't read it","The non-root image needs `--config` before `--port`","Non-root containers can't read YAML","The config contains a secret"],a:[0],
+ x:"The root image hides this. `chmod 644` the mounted config; secrets come from the environment, not the file."},
+// 21 Context and memory management
+{d:21,s:"§22a",q:"Which statement best separates context from memory?",
+ o:["Context is what the model sees on the current call; memory is whatever survives after the call and is loaded back into a later context","Context is short-term memory inside the model; memory is the model's weights","Context is the system prompt; memory is the conversation history","They are the same thing at different sizes"],a:[0],
+ x:"The model is stateless. Memory changes behaviour only when the application stores something and loads part of it back into the context."},
+{d:21,s:"§22a",q:"Which of these are memory, in the sense of something that persists and can change a later answer? (Choose all that apply.)",
+ o:["A semantic store of user preferences","An episodic log of past tasks","A provider's prompt cache","A larger context window"],a:[0,1],
+ x:"A prompt cache only makes a repeated prefix cheaper and faster, and a bigger window raises the per-call ceiling. Neither keeps anything after the call."},
+{d:21,s:"§22a",q:"In the reference architecture, what are the retriever and the context assembler each optimised for?",
+ o:["The retriever for recall (many candidates), the assembler for precision (the best few that fit the budget)","Both for recall","The retriever for precision, the assembler for latency","The retriever for cost, the assembler for caching only"],a:[0],
+ x:"Fetch broadly, then inject narrowly. A relevance threshold keeps top-k from always injecting k memories."},
+{d:21,s:"§22a",q:"Why put tools and rules first and the per-turn memories and new message last?",
+ o:["Prompt caching reuses an exact prefix, so stable parts must come first and volatile parts last","The model reads the end of the context first","Providers reject system prompts after messages","It lowers the token count"],a:[0],
+ x:"Anything that changes early in the prefix, such as a timestamp, invalidates the cache for everything after it."},
+{d:21,s:"Ex 22b.1",q:"`trim_messages(messages, model=\"bedrock/us.anthropic.claude-haiku-5-5\", trim_ratio=0.001)` in 1.109.1 returns what?",
+ o:["The messages untrimmed: the prefixed name isn't a key in `litellm.model_cost`, so it does nothing","The system message only","An error about the unknown model","The newest 0.1% of tokens"],a:[0],
+ x:"Pass `max_tokens=` yourself. `trim_messages` lives in `litellm.utils`; it keeps the system message and trailing tool messages, and drops the oldest turns."},
+{d:21,s:"§22b",q:"A Router has `enable_pre_call_checks=True` and two deployments in one group, with `max_input_tokens` of 2,000 and 1,000,000. Where does a 5,000-token prompt go?",
+ o:["Always to the 1,000,000-token deployment; the small one is filtered out before the call","Either one; the router retries on failure","The small one, which then raises ContextWindowExceededError","Nowhere; the router rejects it"],a:[0],
+ x:"`context_window_fallbacks` is the second net: it moves a request that still overflows to another model group."},
+{d:21,s:"§22b",q:"What does LiteLLM do with `context_management={\"edits\": [{\"type\": \"clear_tool_uses_20250919\"}]}` on `bedrock/us.anthropic.claude-haiku-5-5` (the Converse route) in 1.109.1?",
+ o:["Drops it silently; use `bedrock/invoke/...` to send it","Translates it to a Bedrock guardrail","Raises UnsupportedParamsError","Sends it with the `context-management` beta header"],a:[0],
+ x:"The Invoke route sends Anthropic's own body, so `context_management` and the `memory_20250818` tool arrive with `anthropic_beta` set. On the Anthropic API both pass through."},
+{d:21,s:"§22b",q:"What does `context_management=[{\"type\": \"compaction\", \"compact_threshold\": 150000}]` become for an `anthropic/` model?",
+ o:["`{\"edits\": [{\"type\": \"compact_20260112\", \"trigger\": {\"type\": \"input_tokens\", \"value\": 150000}}]}` plus the `compact-2026-01-12` beta","A local summary made by LiteLLM before the call","A `trim_messages` call with that budget","Nothing; OpenAI-style input is ignored"],a:[0],
+ x:"LiteLLM maps the OpenAI-style list to Anthropic's server-side compaction; Anthropic does the summarising."},
+{d:21,s:"§22b",q:"When does LiteLLM itself compact a long conversation automatically?",
+ o:["Only behind the complexity router, with `context_compaction` (on by default), when a request passes 90% of the chosen deployment's input window, using an Anthropic API model that supports native compaction","On every `completion()` call that exceeds the window","Whenever the proxy has a database","Never"],a:[0],
+ x:"Elsewhere, compaction is your code (summarise with a cheap model) or the provider's (`context_management`)."},
+{d:21,s:"§22c",q:"On the proxy, a second `/v1/responses` call with `previous_response_id` returns 200, but the Anthropic model didn't get the first turn. What is missing?",
+ o:["`general_settings.store_prompts_in_spend_logs: true`; the proxy rebuilds the history from spend logs","Redis","A `litellm_session_id` header","The `store: true` parameter on the first call"],a:[0],
+ x:"For providers that don't store responses themselves, the proxy replays earlier turns from its spend logs. Storing prompts there makes the database hold user content."},
+{d:21,s:"§22c",q:"What is true of the proxy's `/v1/memory` store in 1.109.1? (Choose all that apply.)",
+ o:["It stores key-value entries in Postgres; nothing injects them into prompts for you","A normal user's key needs `allowed_routes` that include `/v1/memory` and `/v1/memory/{key}`","Keys are unique across all users, so a second user creating the same key gets 409","Entries are embedded and searched by meaning"],a:[0,1,2],
+ x:"Namespace keys such as `user:<id>:<name>`. Listing supports `key`, `key_prefix` and `search` prefixes, not semantic search."},
+{d:21,s:"Ex 22c.2",q:"Ana's key belongs to team ops, and she writes a memory entry with it. What can her teammate Ben do with it?",
+ o:["Read it, but not change it (403)","Read and change it","Nothing; he gets 404","Only list its key"],a:[0],
+ x:"An entry written with a team key carries both the user and team IDs, so the team can read it; only the owner (or a team admin, for team-only entries) can change it. Write personal memories with a personal key."},
+{d:21,s:"§22c",q:"Anthropic's `memory_20250818` tool is unavailable for your model. How can an agent still manage its own memory through LiteLLM?",
+ o:["Define an ordinary OpenAI-format function tool (view, create, str_replace) backed by files or a database; LiteLLM's tool calling works with any model","Set `litellm.memory = True`","Use `/v1/memory` as a tool automatically","It can't"],a:[0],
+ x:"The backend must confine paths to its root. The trade-off is extra round trips per turn, compared with a pipeline that injects memories without them."},
+{d:21,s:"§22c",q:"Your long-term memory injects the top 3 memories into every call, and answers to unrelated questions get worse. What fixes it first?",
+ o:["A minimum relevance threshold, so a weak match injects nothing","A larger k","A bigger context window","A prompt cache"],a:[0],
+ x:"Top-k always returns k items. Add recency and importance to the score, and label injected memories with type and date so the model can discount stale ones."},
+];
+
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const md = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; } },
+  set(v) { try { localStorage.setItem(STORE, JSON.stringify(v)); } catch {} },
+};
+
+let S = null; // session state
+
+function build(ids, mode) {
+  return {
+    mode, idx: 0, flagged: new Set(), timerId: null, deadline: null,
+    items: ids.map(id => {
+      const q = Q[id];
+      const order = shuffle(q.o.map((_, i) => i));
+      return { id, order, chosen: [], checked: false };
+    }),
+  };
+}
+
+function stratified(n) {
+  const byDomain = DOMAINS.map((_, d) => shuffle(Q.map((q, i) => i).filter(i => Q[i].d === d)));
+  const per = Math.floor(n / DOMAINS.length);
+  let picked = byDomain.flatMap(list => list.slice(0, per));
+  const rest = shuffle(byDomain.flatMap(list => list.slice(per)));
+  picked = picked.concat(rest.slice(0, n - picked.length));
+  return shuffle(picked);
+}
+
+function show(section) {
+  for (const s of ["home", "quiz", "results"]) $(s).classList.toggle("hidden", s !== section);
+  window.scrollTo(0, 0);
+}
+
+function isCorrect(item) {
+  const want = Q[item.id].a.slice().sort().join(",");
+  return item.chosen.slice().sort().join(",") === want;
+}
+
+function render() {
+  const item = S.items[S.idx], q = Q[item.id], multi = q.a.length > 1;
+  const exam = S.mode === "exam";
+  $("qDomain").textContent = DOMAINS[q.d];
+  $("qRef").textContent = q.s;
+  $("qText").innerHTML = md(q.q);
+  $("qCode").innerHTML = q.code ? `<pre><code>${esc(q.code)}</code></pre>` : "";
+  $("qHint").textContent = multi ? "Select all that apply." : "Choose one.";
+  const form = $("qOpts");
+  form.innerHTML = "";
+  item.order.forEach((orig, pos) => {
+    const label = document.createElement("label");
+    label.className = "opt";
+    const input = document.createElement("input");
+    input.type = multi ? "checkbox" : "radio";
+    input.name = "opt";
+    input.value = orig;
+    input.checked = item.chosen.includes(orig);
+    input.disabled = item.checked;
+    input.addEventListener("change", () => {
+      item.chosen = [...form.querySelectorAll("input:checked")].map(i => +i.value);
+      if (exam) renderPalette();
+      $("checkBtn").disabled = !item.chosen.length;
+    });
+    const span = document.createElement("span");
+    span.innerHTML = `<strong>${pos + 1}.</strong> ${md(q.o[orig])}`;
+    label.append(input, span);
+    if (item.checked) {
+      if (q.a.includes(orig)) label.classList.add("correct");
+      else if (item.chosen.includes(orig)) label.classList.add("wrong");
+    }
+    form.append(label);
+  });
+  const fb = $("qFeedback");
+  if (item.checked) {
+    const ok = isCorrect(item);
+    fb.innerHTML = `<div class="feedback ${ok ? "ok" : "bad"}"><strong>${ok ? "Correct." : "Not quite."}</strong> ${md(q.x)}</div>`;
+  } else fb.innerHTML = "";
+  const n = S.items.length;
+  $("progressText").textContent = exam
+    ? `Question ${S.idx + 1} of ${n} · ${S.items.filter(i => i.chosen.length).length} answered`
+    : `Question ${S.idx + 1} of ${n} · ${S.items.filter(i => i.checked && isCorrect(i)).length} correct of ${S.items.filter(i => i.checked).length} checked`;
+  $("progressBar").style.width = `${100 * (exam ? S.items.filter(i => i.chosen.length).length : S.items.filter(i => i.checked).length) / n}%`;
+  $("prevBtn").disabled = S.idx === 0;
+  $("checkBtn").classList.toggle("hidden", exam || item.checked);
+  $("checkBtn").disabled = !item.chosen.length;
+  $("nextBtn").classList.toggle("hidden", !exam && !item.checked);
+  $("nextBtn").textContent = S.idx === n - 1 ? (exam ? "Review" : "Finish") : "Next";
+  $("flagBtn").classList.toggle("hidden", !exam);
+  $("flagBtn").textContent = S.flagged.has(S.idx) ? "Unflag" : "Flag";
+  if (exam) renderPalette();
+}
+
+function renderPalette() {
+  const p = $("palette");
+  p.innerHTML = "";
+  S.items.forEach((it, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = i + 1;
+    b.setAttribute("aria-label", `Question ${i + 1}${it.chosen.length ? ", answered" : ""}${S.flagged.has(i) ? ", flagged" : ""}`);
+    if (it.chosen.length) b.classList.add("answered");
+    if (S.flagged.has(i)) b.classList.add("flagged");
+    if (i === S.idx) b.classList.add("current");
+    b.addEventListener("click", () => { S.idx = i; render(); });
+    p.append(b);
+  });
+}
+
+function start(mode, ids) {
+  stopTimer();
+  S = build(ids, mode);
+  $("paletteCard").classList.toggle("hidden", mode !== "exam");
+  $("timer").classList.toggle("hidden", mode !== "exam");
+  if (mode === "exam") {
+    S.deadline = Date.now() + EXAM_MIN * 60000;
+    tick();
+    S.timerId = setInterval(tick, 1000);
+  }
+  show("quiz");
+  render();
+}
+
+function tick() {
+  const left = Math.max(0, S.deadline - Date.now());
+  const m = Math.floor(left / 60000), s = Math.floor(left / 1000) % 60;
+  $("timer").textContent = `${m}:${String(s).padStart(2, "0")} left`;
+  $("timer").classList.toggle("low", left < 5 * 60000);
+  if (left === 0) finish(true);
+}
+
+function stopTimer() { if (S && S.timerId) { clearInterval(S.timerId); S.timerId = null; } }
+
+function finish(timedOut = false) {
+  stopTimer();
+  const exam = S.mode === "exam";
+  const graded = exam ? S.items : S.items.filter(i => i.checked);
+  for (const it of S.items) it.checked = true;
+  const correct = graded.filter(isCorrect).length, total = graded.length;
+  const pct = total ? Math.round(100 * correct / total) : 0;
+  $("scoreBig").textContent = `${pct}%`;
+  $("scoreBig").className = "score " + (exam ? (pct >= PASS ? "pass" : "fail") : "");
+  $("scoreLine").innerHTML = exam
+    ? `${correct} of ${total} correct · <strong class="${pct >= PASS ? "pass" : "fail"}">${pct >= PASS ? "PASS" : "FAIL"}</strong> (pass mark ${PASS}%)${timedOut ? " · time ran out" : ""}`
+    : `${correct} of ${total} checked questions correct (practice)`;
+  if (exam) {
+    const h = store.get();
+    h.attempts = (h.attempts || []).concat([{ when: new Date().toISOString(), pct }]).slice(-20);
+    h.best = Math.max(h.best || 0, pct);
+    store.set(h);
+  }
+  const rows = DOMAINS.map((name, d) => {
+    const its = graded.filter(i => Q[i.id].d === d);
+    return { name, n: its.length, ok: its.filter(isCorrect).length };
+  }).filter(r => r.n);
+  $("domainTable").innerHTML = `<tr><th>Domain</th><th class="dbar"></th><th class="num">Score</th></tr>` + rows.map(r => {
+    const p = Math.round(100 * r.ok / r.n);
+    return `<tr><td>${esc(r.name)}</td><td class="dbar"><div class="bar"><span style="width:${p}%;background:var(${p >= PASS ? "--ok" : "--bad"})"></span></div></td><td class="num">${r.ok}/${r.n}</td></tr>`;
+  }).join("");
+  S.graded = graded;
+  renderReview();
+  $("retryWrongBtn").disabled = graded.every(isCorrect);
+  show("results");
+}
+
+function renderReview() {
+  const all = $("showAll").checked;
+  const list = S.graded.filter(i => all || !isCorrect(i));
+  $("review").innerHTML = list.length ? list.map(it => {
+    const q = Q[it.id], ok = isCorrect(it);
+    const opts = q.o.map((o, i) => {
+      const mark = q.a.includes(i) ? "✓" : it.chosen.includes(i) ? "✗" : "·";
+      const cls = q.a.includes(i) ? "pass" : it.chosen.includes(i) ? "fail" : "muted";
+      return `<div class="small"><span class="${cls}">${mark}</span> ${md(o)}</div>`;
+    }).join("");
+    return `<div class="review-item"><div class="qmeta"><span class="tag">${esc(DOMAINS[q.d])}</span><span class="tag">${esc(q.s)}</span><span class="tag ${ok ? "pass" : "fail"}">${ok ? "correct" : it.chosen.length ? "wrong" : "unanswered"}</span></div>
+      <div class="qtext">${md(q.q)}</div>${q.code ? `<pre><code>${esc(q.code)}</code></pre>` : ""}${opts}<p class="small" style="margin-top:8px">${md(q.x)}</p></div>`;
+  }).join("") : `<p class="muted">Nothing to review: every question was answered correctly.</p>`;
+}
+
+function renderHome() {
+  const box = $("domainBoxes");
+  box.innerHTML = DOMAINS.map((name, d) => {
+    const n = Q.filter(q => q.d === d).length;
+    return `<label><input type="checkbox" value="${d}" checked> <span>${esc(name)} <span class="muted small">(${n})</span></span></label>`;
+  }).join("");
+  $("examN").textContent = EXAM_N;
+  $("examMin").textContent = EXAM_MIN;
+  $("passPct").textContent = PASS;
+  $("bankInfo").textContent = `Question bank: ${Q.length} questions, ${Q.filter(q => q.a.length > 1).length} of them multi-select. Questions and options are shuffled on every run.`;
+  const h = store.get();
+  $("history").textContent = h.attempts && h.attempts.length
+    ? `Best score: ${h.best}% · last ${Math.min(5, h.attempts.length)}: ${h.attempts.slice(-5).map(a => a.pct + "%").join(", ")}`
+    : "No exam attempts yet in this browser.";
+}
+
+$("selAll").onclick = () => $("domainBoxes").querySelectorAll("input").forEach(i => i.checked = true);
+$("selNone").onclick = () => $("domainBoxes").querySelectorAll("input").forEach(i => i.checked = false);
+$("startPractice").onclick = () => {
+  const ds = [...$("domainBoxes").querySelectorAll("input:checked")].map(i => +i.value);
+  const ids = Q.map((_, i) => i).filter(i => ds.includes(Q[i].d));
+  if (!ids.length) { alert("Choose at least one domain."); return; }
+  start("practice", shuffle(ids));
+};
+$("startExam").onclick = () => start("exam", stratified(Math.min(EXAM_N, Q.length)));
+$("checkBtn").onclick = () => { const it = S.items[S.idx]; if (!it.chosen.length) return; it.checked = true; render(); };
+$("nextBtn").onclick = () => {
+  if (S.idx < S.items.length - 1) { S.idx++; render(); return; }
+  if (S.mode === "exam") { $("submitBtn").focus(); $("paletteCard").scrollIntoView({ behavior: "smooth" }); }
+  else finish();
+};
+$("prevBtn").onclick = () => { if (S.idx > 0) { S.idx--; render(); } };
+$("flagBtn").onclick = () => { S.flagged.has(S.idx) ? S.flagged.delete(S.idx) : S.flagged.add(S.idx); render(); };
+$("submitBtn").onclick = () => {
+  const open = S.items.filter(i => !i.chosen.length).length;
+  if (open && !confirm(`${open} question(s) unanswered. Submit anyway?`)) return;
+  finish();
+};
+$("quitBtn").onclick = () => {
+  if (S.mode === "practice" && S.items.some(i => i.checked)) { finish(); return; }
+  if (!confirm("Leave this session? Your answers will be lost.")) return;
+  stopTimer(); renderHome(); show("home");
+};
+$("homeBtn").onclick = () => { renderHome(); show("home"); };
+$("retryWrongBtn").onclick = () => start("practice", shuffle(S.graded.filter(i => !isCorrect(i)).map(i => i.id)));
+$("showAll").onchange = renderReview;
+$("themeBtn").onclick = () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.theme = dark ? "light" : "dark";
+  try { localStorage.setItem(STORE + "-theme", root.dataset.theme); } catch {}
+};
+try { const t = localStorage.getItem(STORE + "-theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
+
+document.addEventListener("keydown", e => {
+  if ($("quiz").classList.contains("hidden") || e.ctrlKey || e.metaKey || e.altKey) return;
+  const inputs = $("qOpts").querySelectorAll("input");
+  const n = parseInt(e.key, 10);
+  if (n >= 1 && n <= inputs.length && !inputs[n - 1].disabled) {
+    const inp = inputs[n - 1];
+    inp.checked = inp.type === "checkbox" ? !inp.checked : true;
+    inp.dispatchEvent(new Event("change"));
+    e.preventDefault();
+  } else if (e.key === "Enter" && e.target.tagName !== "BUTTON") {
+    const it = S.items[S.idx];
+    if (S.mode === "practice" && !it.checked) $("checkBtn").click(); else $("nextBtn").click();
+    e.preventDefault();
+  }
+});
+
+renderHome();
+</script>
+</body>
+</html>
