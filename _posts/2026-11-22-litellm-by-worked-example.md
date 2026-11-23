@@ -10,6 +10,9 @@ Every LLM provider has its own API, so an application that uses three providers 
 
 I wrote a tutorial that covers both: **[LiteLLM by Worked Example](/tutorials/litellm/1.109.1/)**.
 
+> **Update:** an edition for LiteLLM 1.110.2 is now available as well. The [editions page](/tutorials/litellm/) lists every edition and what changed between them.
+{: .prompt-info }
+
 ## How it works
 
 Each section is one practical use case. It comes with a runnable script, the output the script really produced, an explanation of what the output shows, and exercises with hints. Most examples run offline with mocked replies or small local fakes of the provider APIs, so you can work through them without an account or spending money. Where a section needs a real provider, it says so.
