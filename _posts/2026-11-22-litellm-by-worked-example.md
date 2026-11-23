@@ -10,7 +10,7 @@ Every LLM provider has its own API, so an application that uses three providers 
 
 I wrote a tutorial that covers both: **[LiteLLM by Worked Example](/tutorials/litellm/1.109.1/)**.
 
-> **Update:** an edition for LiteLLM 1.110.2 is now available as well. The [editions page](/tutorials/litellm/) lists every edition and what changed between them.
+> **Update:** an edition for LiteLLM 1.110.2 is now available as well. The [editions page](/tutorials/litellm/) lists every edition, and the [new edition's introduction](/tutorials/litellm/1.110.2/) lists what changed.
 {: .prompt-info }
 
 ## How it works
