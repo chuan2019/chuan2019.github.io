@@ -10,7 +10,7 @@ LiteLLM changes quickly, so the tutorial comes in editions. Each edition is writ
 
 | LiteLLM | Tutorial | Read | Self-test | Code |
 | --- | --- | --- | --- | --- |
-| 1.110.2 | 0.2.4 | [Tutorial](/tutorials/litellm/1.110.2/) | [284 questions](/tutorials/litellm/1.110.2/exercises/exam.html) | [`v0.2.4-litellm1.110.2`](https://github.com/chuan2019/litellm-tutorial/tree/v0.2.4-litellm1.110.2) |
+| 1.110.2 | 0.2.5 | [Tutorial](/tutorials/litellm/1.110.2/) | [284 questions](/tutorials/litellm/1.110.2/exercises/exam.html) | [`v0.2.5-litellm1.110.2`](https://github.com/chuan2019/litellm-tutorial/tree/v0.2.5-litellm1.110.2) |
 | 1.109.1 | 0.1.0 | [Tutorial](/tutorials/litellm/1.109.1/) | [257 questions](/tutorials/litellm/1.109.1/exercises/exam.html) | [`v0.1.0-litellm1.109.1`](https://github.com/chuan2019/litellm-tutorial/tree/v0.1.0-litellm1.109.1) |
 
 The code is in [chuan2019/litellm-tutorial](https://github.com/chuan2019/litellm-tutorial). Each edition has its own branch there, named `litellm-<version>`. Its [changelog](https://github.com/chuan2019/litellm-tutorial/blob/main/CHANGELOG.md) lists what changed in each release.
