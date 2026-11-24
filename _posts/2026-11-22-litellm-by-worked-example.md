@@ -8,7 +8,7 @@ description: "A 23-section, hands-on tutorial for the LiteLLM SDK and proxy, wri
 
 Every LLM provider has its own API, so an application that uses three providers carries three integrations, plus its own retries, failover, spend tracking and key management. [LiteLLM](https://github.com/BerriAI/litellm) puts one OpenAI-shaped interface in front of more than 100 providers. It comes as a Python SDK and as a proxy server that any OpenAI client can call.
 
-I wrote a tutorial that covers both: **[LiteLLM by Worked Example](/tutorials/litellm/1.109.1/)**.
+I wrote a tutorial that covers both: **[LiteLLM by Worked Example](/tutorials/litellm/)**.
 
 > **Update:** an edition for LiteLLM 1.110.2 is now available as well. The [editions page](/tutorials/litellm/) lists every edition, and the [new edition's introduction](/tutorials/litellm/1.110.2/) lists what changed.
 {: .prompt-info }
